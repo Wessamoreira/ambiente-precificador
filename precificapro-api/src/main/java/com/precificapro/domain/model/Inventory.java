@@ -42,7 +42,7 @@ public class Inventory {
     private Integer availableStock = 0;
     
     @Enumerated(EnumType.STRING)
-    @Column(name = "stock_status", nullable = false)
+    @Column(name = "stock_status", nullable = false, columnDefinition = "stock_status")
     @Builder.Default
     private StockStatus stockStatus = StockStatus.OUT_OF_STOCK;
     

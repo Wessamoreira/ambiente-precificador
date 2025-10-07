@@ -1,0 +1,5 @@
+package com.precificapro.controller;
+
+public class DashboardController {
+
+}

@@ -1,0 +1,5 @@
+package com.precificapro.mapper;
+
+public class PricingProfileMapper {
+
+}

@@ -1,0 +1,168 @@
+package com.precificapro.service;
+
+import com.precificapro.controller.dto.SimulationRequestDTO;
+import com.precificapro.controller.dto.SimulationResponseDTO;
+import com.precificapro.domain.enums.PricingMethod;
+import com.precificapro.domain.enums.RoundingRule;
+import com.precificapro.domain.model.CostItem;
+import com.precificapro.domain.model.PricingProfile;
+import com.precificapro.domain.model.Product;
+import com.precificapro.domain.model.User;
+import com.precificapro.domain.repository.CostItemRepository;
+import com.precificapro.domain.repository.FreightBatchRepository;
+import com.precificapro.domain.repository.PricingProfileRepository;
+import com.precificapro.domain.repository.ProductRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.math.BigDecimal;
+import java.math.MathContext;
+import java.math.RoundingMode;
+
+@Service
+public class PricingSimulationService {
+
+    @Autowired private ProductRepository productRepository;
+    @Autowired private PricingProfileRepository profileRepository;
+    @Autowired private CostItemRepository costItemRepository;
+    @Autowired private FreightBatchRepository freightBatchRepository;
+
+    private static final MathContext MC = new MathContext(10, RoundingMode.HALF_UP);
+
+    @Transactional(readOnly = true)
+    public SimulationResponseDTO simulate(SimulationRequestDTO request, User owner) {
+
+        // 1. CARREGAR DADOS COM SEGURANÇA
+        Product product = productRepository.findByIdAndOwner(request.productId(), owner)
+                .orElseThrow(() -> new RuntimeException("Produto não encontrado."));
+        PricingProfile profile = profileRepository.findByIdAndOwner(request.profileId(), owner)
+                .orElseThrow(() -> new RuntimeException("Perfil de precificação não encontrado."));
+
+        // 2. APLICAR OVERRIDES (se existirem)
+        SimulationRequestDTO.OverrideDTO override = request.override();
+        BigDecimal purchaseCost = (override != null && override.purchaseCost() != null) ? override.purchaseCost() : product.getDefaultPurchaseCost();
+        BigDecimal packagingCost = (override != null && override.packagingCost() != null) ? override.packagingCost() : product.getDefaultPackagingCost();
+        BigDecimal otherVariableCost = (override != null && override.otherVariableCost() != null) ? override.otherVariableCost() : product.getDefaultOtherVariableCost();
+        int salesTarget = (override != null && override.monthlySalesTarget() != null) ? override.monthlySalesTarget() : profile.getMonthlySalesTarget();
+        BigDecimal machineFeePct = (override != null && override.machineFeePct() != null) ? override.machineFeePct() : profile.getMachineFeePct();
+        BigDecimal marketplaceFeePct = (override != null && override.marketplaceFeePct() != null) ? override.marketplaceFeePct() : profile.getMarketplaceFeePct();
+        BigDecimal otherFeesPct = (override != null && override.otherFeesPct() != null) ? override.otherFeesPct() : profile.getOtherFeesPct();
+
+        // 3. CALCULAR CUSTO DIRETO UNITÁRIO (BREAKDOWN)
+        BigDecimal freightCostUnit = freightBatchRepository.findFirstByProductOrderByCreatedAtDesc(product)
+                .map(batch -> batch.getFreightTotal().divide(BigDecimal.valueOf(batch.getBatchSize()), MC))
+                .orElse(BigDecimal.ZERO);
+
+        BigDecimal directCostUnit = purchaseCost.add(packagingCost).add(otherVariableCost).add(freightCostUnit);
+
+        // 4. CALCULAR CUSTO INDIRETO UNITÁRIO (RATEIO)
+        BigDecimal totalFixedCosts = costItemRepository.findByOwnerAndActiveTrue(owner).stream()
+                .map(CostItem::getAmountMonthly)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        
+        BigDecimal indirectCostUnit = (salesTarget > 0) 
+                ? totalFixedCosts.divide(BigDecimal.valueOf(salesTarget), MC) 
+                : BigDecimal.ZERO;
+
+        // 5. CALCULAR CUSTO TOTAL UNITÁRIO
+        BigDecimal totalCostUnit = directCostUnit.add(indirectCostUnit);
+
+        // 6. CALCULAR PREÇO DE VENDA
+        BigDecimal totalFeesPct = machineFeePct.add(marketplaceFeePct).add(otherFeesPct);
+        BigDecimal price;
+        if (profile.getMethod() == PricingMethod.MARKUP) {
+            BigDecimal markupValue = (profile.getMarkup() != null) ? profile.getMarkup() : BigDecimal.ZERO;
+            price = totalCostUnit.multiply(BigDecimal.ONE.add(markupValue)).divide(BigDecimal.ONE.subtract(totalFeesPct), MC);
+        } else { // MARGIN
+            BigDecimal marginValue = (profile.getMarginOnPrice() != null) ? profile.getMarginOnPrice() : BigDecimal.ZERO;
+            price = totalCostUnit.divide(BigDecimal.ONE.subtract(totalFeesPct).subtract(marginValue), MC);
+        }
+        
+        BigDecimal suggestedPrice = applyRounding(price, profile.getRoundingRule());
+
+        // 7. CALCULAR MÉTRICAS FINAIS DE CUSTO E LUCRO
+        BigDecimal feesValue = suggestedPrice.multiply(totalFeesPct);
+        BigDecimal costPlusFees = totalCostUnit.add(feesValue);
+        BigDecimal netProfitPerUnit = suggestedPrice.subtract(costPlusFees);
+        
+        // Evita divisão por zero se o preço for zero
+        BigDecimal netProfitPercentage = (suggestedPrice.compareTo(BigDecimal.ZERO) > 0)
+                ? netProfitPerUnit.divide(suggestedPrice, MC).multiply(BigDecimal.valueOf(100))
+                : BigDecimal.ZERO;
+
+        // Evita divisão por zero se o custo for zero
+        BigDecimal markupOnTotalCost = (totalCostUnit.compareTo(BigDecimal.ZERO) > 0)
+                ? (suggestedPrice.divide(totalCostUnit, MC)).subtract(BigDecimal.ONE).multiply(BigDecimal.valueOf(100))
+                : BigDecimal.ZERO;
+
+        BigDecimal contributionMarginUnit = suggestedPrice.multiply(BigDecimal.ONE.subtract(totalFeesPct)).subtract(directCostUnit);
+        
+        Integer breakEvenUnits = (contributionMarginUnit.compareTo(BigDecimal.ZERO) > 0)
+                ? totalFixedCosts.divide(contributionMarginUnit, 0, RoundingMode.CEILING).intValue()
+                : null;
+
+        // 8. MONTAR OS SUB-DTOs
+        SimulationResponseDTO.CostBreakdownDTO costBreakdown = new SimulationResponseDTO.CostBreakdownDTO(
+                purchaseCost.setScale(2, RoundingMode.HALF_UP),
+                packagingCost.setScale(2, RoundingMode.HALF_UP),
+                otherVariableCost.setScale(2, RoundingMode.HALF_UP),
+                freightCostUnit.setScale(2, RoundingMode.HALF_UP),
+                directCostUnit.setScale(2, RoundingMode.HALF_UP),
+                indirectCostUnit.setScale(2, RoundingMode.HALF_UP),
+                totalCostUnit.setScale(2, RoundingMode.HALF_UP),
+                feesValue.setScale(2, RoundingMode.HALF_UP),
+                costPlusFees.setScale(2, RoundingMode.HALF_UP)
+        );
+
+        SimulationResponseDTO.ProfitDetailsDTO profitDetails = new SimulationResponseDTO.ProfitDetailsDTO(
+                netProfitPerUnit.setScale(2, RoundingMode.HALF_UP),
+                netProfitPercentage.setScale(2, RoundingMode.HALF_UP),
+                markupOnTotalCost.setScale(2, RoundingMode.HALF_UP)
+        );
+
+        BigDecimal revenue = suggestedPrice.multiply(BigDecimal.valueOf(salesTarget));
+        BigDecimal totalDirectCost = directCostUnit.multiply(BigDecimal.valueOf(salesTarget));
+        BigDecimal totalFees = feesValue.multiply(BigDecimal.valueOf(salesTarget));
+        BigDecimal totalNetProfit = netProfitPerUnit.multiply(BigDecimal.valueOf(salesTarget));
+
+        SimulationResponseDTO.MonthlyProjectionDTO monthlyProjection = new SimulationResponseDTO.MonthlyProjectionDTO(
+                revenue.setScale(2, RoundingMode.HALF_UP),
+                totalDirectCost.setScale(2, RoundingMode.HALF_UP),
+                totalFixedCosts.setScale(2, RoundingMode.HALF_UP),
+                totalFees.setScale(2, RoundingMode.HALF_UP),
+                totalNetProfit.setScale(2, RoundingMode.HALF_UP)
+        );
+
+        // 9. MONTAR E RETORNAR A RESPOSTA FINAL
+        return new SimulationResponseDTO(
+                suggestedPrice.setScale(2, RoundingMode.HALF_UP),
+                breakEvenUnits,
+                costBreakdown,
+                profitDetails,
+                monthlyProjection
+        );
+    }
+
+    private BigDecimal applyRounding(BigDecimal price, RoundingRule rule) {
+        if (rule == null || rule == RoundingRule.NONE) {
+            return price.setScale(2, RoundingMode.HALF_UP);
+        }
+
+        long integerPart = price.longValue();
+        BigDecimal decimalPart = price.subtract(BigDecimal.valueOf(integerPart));
+
+        return switch (rule) {
+            case UP_TO_0_90 -> (decimalPart.compareTo(BigDecimal.valueOf(0.90)) <= 0)
+                    ? BigDecimal.valueOf(integerPart).add(BigDecimal.valueOf(0.90))
+                    : BigDecimal.valueOf(integerPart + 1).add(BigDecimal.valueOf(0.90));
+            case UP_TO_0_99 -> (decimalPart.compareTo(BigDecimal.valueOf(0.99)) <= 0)
+                    ? BigDecimal.valueOf(integerPart).add(BigDecimal.valueOf(0.99))
+                    : BigDecimal.valueOf(integerPart + 1).add(BigDecimal.valueOf(0.99));
+            case UP_TO_0_50 -> (decimalPart.compareTo(BigDecimal.valueOf(0.50)) <= 0)
+                    ? BigDecimal.valueOf(integerPart).add(BigDecimal.valueOf(0.50))
+                    : BigDecimal.valueOf(integerPart + 1).add(BigDecimal.valueOf(0.50));
+            default -> price.setScale(2, RoundingMode.HALF_UP);
+        };
+    }
+}

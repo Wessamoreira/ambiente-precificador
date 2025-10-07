@@ -1,0 +1,5 @@
+package com.precificapro.service.impl;
+
+public class UserDetailsServiceImpl {
+
+}

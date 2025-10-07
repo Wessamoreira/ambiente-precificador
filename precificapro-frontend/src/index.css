@@ -1,0 +1,12 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+    background: linear-gradient(to right, #232526, #414345);
+    color: #E5E7EB; /* Um cinza claro para o texto, bom para fundos escuros */
+    margin: 0; /* Remove margens padrão */
+    padding: 0; /* Remove padding padrão */
+    overflow-x: hidden; /* Previne scroll horizontal */
+  }
+

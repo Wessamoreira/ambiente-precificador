@@ -1,0 +1,5 @@
+package com.precificapro.domain.repository;
+
+public class SaleRepository {
+
+}

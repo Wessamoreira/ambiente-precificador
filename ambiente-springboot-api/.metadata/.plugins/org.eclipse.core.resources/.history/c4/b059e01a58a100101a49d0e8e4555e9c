@@ -1,0 +1,5 @@
+package com.precificapro.controller.dto;
+
+public class CustomerDTO {
+
+}

@@ -1,0 +1,42 @@
+package com.precificapro.controller;
+
+import com.precificapro.controller.dto.SaleCreateDTO;
+import com.precificapro.domain.model.User;
+import com.precificapro.service.SaleService;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import com.precificapro.mapper.SaleMapper;
+import com.precificapro.controller.dto.SaleResponseDTO;
+
+@RestController
+@RequestMapping("/sales")
+public class SaleController {
+
+    @Autowired
+    private SaleService saleService;
+
+    @PostMapping
+    public ResponseEntity<?> recordSale(@RequestBody SaleCreateDTO dto, @AuthenticationPrincipal User owner) {
+        saleService.recordSale(dto, owner);
+        return new ResponseEntity<>("Venda registrada com sucesso.", HttpStatus.CREATED);
+    }
+    
+    @GetMapping
+    public ResponseEntity<List<SaleResponseDTO>> getAllSales(@AuthenticationPrincipal User owner) {
+        List<SaleResponseDTO> sales = saleService.findAllByOwner(owner).stream()
+                .map(saleMapper::toResponseDTO)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(sales);
+    }
+    
+}

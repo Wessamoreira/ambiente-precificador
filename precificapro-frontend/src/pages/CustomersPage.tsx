@@ -78,7 +78,7 @@ export const CustomersPage = () => {
         <motion.h1 
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
-          className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-violet-400 to-cyan-400 bg-clip-text text-transparent"
+          className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-aurora-violet-light via-aurora-cyan to-aurora-violet bg-clip-text text-transparent"
         >
           Meus Clientes
         </motion.h1>
@@ -101,14 +101,14 @@ export const CustomersPage = () => {
             placeholder="Buscar por nome, telefone ou email..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-400 focus:border-transparent transition-all"
+            className="w-full pl-10 pr-4 py-3 bg-white/5 backdrop-blur-xl border border-white/10 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:border-aurora-cyan focus:shadow-neon-cyan transition-all"
           />
         </div>
       </motion.div>
       
       {/* Tabela para Desktop */}
       <div className="hidden md:block">
-        <GlassCard className="overflow-hidden p-0">
+        <GlassCard className="overflow-hidden p-0" neonColor="rose" enableNeonBorder={true}>
           <div className="overflow-x-auto">
             <table className="min-w-full">
               <thead className="bg-white/5">
@@ -171,7 +171,7 @@ export const CustomersPage = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.05 }}
             >
-              <GlassCard className="p-4">
+              <GlassCard className="p-4" neonColor="amber" enableNeonBorder={true}>
                 <div className="mb-4">
                   <h3 className="text-lg font-bold text-white mb-2">{customer.name}</h3>
                   <p className="text-sm text-gray-300 mb-1">📞 {customer.phoneNumber}</p>
@@ -197,7 +197,7 @@ export const CustomersPage = () => {
             </motion.div>
           ))
         ) : (
-          <GlassCard className="p-10 text-center text-gray-400">
+          <GlassCard className="p-10 text-center text-gray-400" neonColor="violet">
             Nenhum cliente encontrado.
           </GlassCard>
         )}

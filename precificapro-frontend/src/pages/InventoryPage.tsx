@@ -118,7 +118,7 @@ export const InventoryPage = () => {
         <motion.h1 
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
-          className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-violet-400 to-cyan-400 bg-clip-text text-transparent"
+          className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-aurora-violet-light via-aurora-cyan to-aurora-violet bg-clip-text text-transparent"
         >
           Gestão de Estoque
         </motion.h1>
@@ -131,45 +131,53 @@ export const InventoryPage = () => {
           animate={{ opacity: 1, y: 0 }}
           className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6"
         >
-          <GlassCard>
+          <GlassCard neonColor="violet" enableNeonBorder={true} className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-gray-400 text-sm">Total de Produtos</p>
-                <p className="text-2xl font-bold text-white">{summary.totalProducts}</p>
+                <p className="text-gray-400 text-sm font-semibold uppercase">Total</p>
+                <p className="text-3xl font-bold text-white mt-2">{summary.totalProducts}</p>
               </div>
-              <Package className="w-10 h-10 text-blue-400" />
+              <div className="p-3 rounded-xl bg-aurora-violet/20">
+                <Package className="w-8 h-8 text-aurora-violet" />
+              </div>
             </div>
           </GlassCard>
 
-          <GlassCard>
+          <GlassCard neonColor="cyan" enableNeonBorder={true} className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-gray-400 text-sm">Em Estoque</p>
-                <p className="text-2xl font-bold text-green-400">{summary.inStock}</p>
+                <p className="text-gray-400 text-sm font-semibold uppercase">Em Estoque</p>
+                <p className="text-3xl font-bold text-green-400 mt-2">{summary.inStock}</p>
               </div>
-              <CheckCircle className="w-10 h-10 text-green-400" />
+              <div className="p-3 rounded-xl bg-green-500/20">
+                <CheckCircle className="w-8 h-8 text-green-400" />
+              </div>
             </div>
           </GlassCard>
 
-          <GlassCard>
+          <GlassCard neonColor="amber" enableNeonBorder={true} className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-gray-400 text-sm">Estoque Baixo</p>
-                <p className="text-2xl font-bold text-yellow-400">{summary.lowStock}</p>
-                <p className="text-xs text-gray-500">{summary.lowStockPercentage.toFixed(1)}%</p>
+                <p className="text-gray-400 text-sm font-semibold uppercase">Baixo</p>
+                <p className="text-3xl font-bold text-yellow-400 mt-2">{summary.lowStock}</p>
+                <p className="text-xs text-gray-500 mt-1">{summary.lowStockPercentage.toFixed(1)}%</p>
               </div>
-              <AlertTriangle className="w-10 h-10 text-yellow-400" />
+              <div className="p-3 rounded-xl bg-yellow-500/20">
+                <AlertTriangle className="w-8 h-8 text-yellow-400" />
+              </div>
             </div>
           </GlassCard>
 
-          <GlassCard>
+          <GlassCard neonColor="rose" enableNeonBorder={true} className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-gray-400 text-sm">Sem Estoque</p>
-                <p className="text-2xl font-bold text-red-400">{summary.outOfStock}</p>
-                <p className="text-xs text-gray-500">{summary.outOfStockPercentage.toFixed(1)}%</p>
+                <p className="text-gray-400 text-sm font-semibold uppercase">Sem Estoque</p>
+                <p className="text-3xl font-bold text-red-400 mt-2">{summary.outOfStock}</p>
+                <p className="text-xs text-gray-500 mt-1">{summary.outOfStockPercentage.toFixed(1)}%</p>
               </div>
-              <XCircle className="w-10 h-10 text-red-400" />
+              <div className="p-3 rounded-xl bg-red-500/20">
+                <XCircle className="w-8 h-8 text-red-400" />
+              </div>
             </div>
           </GlassCard>
         </motion.div>
@@ -235,10 +243,10 @@ export const InventoryPage = () => {
                   inventory.map((item) => (
                     <tr key={item.id} className="border-b border-white/5 hover:bg-white/5">
                       <td className="p-4">
-                        <div className="text-white font-medium">{item.productName}</div>
+                        <div className="text-white font-medium truncate max-w-[200px]" title={item.productName}>{item.productName}</div>
                       </td>
                       <td className="p-4">
-                        <span className="text-gray-400 text-sm">{item.productSku}</span>
+                        <span className="text-gray-400 text-sm truncate block max-w-[100px]" title={item.productSku}>{item.productSku}</span>
                       </td>
                       <td className="p-4">
                         <div className="flex items-center justify-center gap-2">

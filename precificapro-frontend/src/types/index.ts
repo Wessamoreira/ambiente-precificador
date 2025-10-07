@@ -121,6 +121,52 @@ export interface Product {
       customerCount: number;
   }
 
+  export interface TopCustomer {
+    customerId: string;
+    customerName: string;
+    totalPurchases: number;
+    totalSpent: number;
+    totalProfit: number;
+  }
+
+  export interface TopSale {
+    saleId: string;
+    customerName: string;
+    totalAmount: number;
+    netProfit: number;
+    saleDate: string;
+    itemsCount: number;
+  }
+
+  export interface DashboardStats {
+    metrics: DashboardMetricsDTO;
+    topCustomersByPurchases: TopCustomer[];
+    topCustomersByProfit: TopCustomer[];
+    topSales: TopSale[];
+  }
+
+  export interface CustomerProductPurchase {
+    productId: string;
+    productName: string;
+    totalQuantity: number;
+    totalSpent: number;
+    averagePrice: number;
+    lastPurchaseDate: string;
+  }
+
+  export interface CustomerAnalytics {
+    customerId: string;
+    customerName: string;
+    customerEmail: string;
+    customerPhone: string;
+    totalPurchases: number;
+    totalSpent: number;
+    totalProfit: number;
+    averageOrderValue: number;
+    products: CustomerProductPurchase[];
+    lastPurchaseDate: string;
+  }
+
   // =================== INVENTORY & STOCK ===================
   export enum StockStatus {
     IN_STOCK = "IN_STOCK",

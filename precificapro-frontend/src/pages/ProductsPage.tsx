@@ -85,7 +85,7 @@ export const ProductsPage = () => {
         <motion.h1 
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
-          className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-violet-400 to-cyan-400 bg-clip-text text-transparent"
+          className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-aurora-violet-light via-aurora-cyan to-aurora-violet bg-clip-text text-transparent"
         >
           Meus Produtos
         </motion.h1>
@@ -108,14 +108,14 @@ export const ProductsPage = () => {
             placeholder="Buscar por nome ou SKU..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-400 focus:border-transparent transition-all"
+            className="w-full pl-10 pr-4 py-3 bg-white/5 backdrop-blur-xl border border-white/10 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:border-aurora-violet focus:shadow-neon-violet transition-all"
           />
         </div>
       </motion.div>
       
       {/* Tabela para Desktop */}
       <div className="hidden md:block">
-        <GlassCard className="overflow-hidden p-0">
+        <GlassCard className="overflow-hidden p-0" neonColor="violet" enableNeonBorder={true}>
           <div className="overflow-x-auto">
             <table className="min-w-full">
               <thead className="bg-white/5">
@@ -204,7 +204,7 @@ export const ProductsPage = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.05 }}
             >
-              <GlassCard className="p-4">
+              <GlassCard className="p-4" neonColor="cyan" enableNeonBorder={true}>
                 <div className="flex gap-4 mb-3">
                   <div className="w-16 h-16 rounded-lg overflow-hidden bg-gradient-to-br from-purple-500 to-cyan-500 flex items-center justify-center flex-shrink-0">
                     {product.primaryImageUrl ? (

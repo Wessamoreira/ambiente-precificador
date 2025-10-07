@@ -1,8 +1,8 @@
 import { useTheme } from '../../context/ThemeContext';
 import { useAuth } from '../../context/AuthContext';
 import { Menu, Sun, Moon, LogOut } from 'lucide-react';
+import { motion } from 'framer-motion';
 
-// O Header agora recebe uma função para ser chamada quando o botão de menu for clicado
 interface HeaderProps {
   onMenuButtonClick: () => void;
 }
@@ -12,42 +12,63 @@ export const Header = ({ onMenuButtonClick }: HeaderProps) => {
   const { logout } = useAuth();
 
   return (
-    <header className="flex justify-between items-center px-4 md:px-6 h-16 md:h-20 backdrop-blur-2xl bg-gradient-to-r from-black/20 via-black/10 to-black/20 border-b border-white/10 sticky top-0 z-20">
-      {/* Botão Hamburger - Visível apenas em telas pequenas */}
-      <button 
+    <motion.header 
+      initial={{ y: -100 }}
+      animate={{ y: 0 }}
+      transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+      className="flex justify-between items-center px-4 md:px-6 h-16 md:h-20 backdrop-blur-3xl bg-white/5 border-b border-white/10 sticky top-0 z-50"
+    >
+      {/* Brilho Aurora no topo */}
+      <div className="absolute top-0 left-0 right-0 h-full bg-gradient-to-r from-aurora-violet/10 via-aurora-cyan/10 to-aurora-rose/10 pointer-events-none opacity-50" />
+      
+      {/* Botão Hamburger - Mobile */}
+      <motion.button 
         onClick={onMenuButtonClick}
-        className="md:hidden p-2 rounded-lg text-gray-300 hover:bg-white/10 hover:text-white transition-all duration-200 active:scale-95"
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
+        className="relative z-10 md:hidden p-2.5 rounded-xl text-gray-300 hover:bg-white/10 hover:text-white transition-all duration-300 hover:shadow-neon-violet"
         aria-label="Abrir menu"
       >
-        <Menu className="h-6 w-6" />
-      </button>
+        <Menu className="h-5 w-5" />
+      </motion.button>
 
-      {/* Espaçador para empurrar os próximos itens para a direita */}
+      {/* Espaçador */}
       <div className="flex-1"></div>
 
-      <div className="flex items-center gap-2">
+      <div className="relative z-10 flex items-center gap-3">
         {/* Botão de Tema */}
-        <button
+        <motion.button
           onClick={toggleTheme}
-          className="p-2 md:p-2.5 rounded-lg text-gray-300 hover:bg-white/10 hover:text-white transition-all duration-200 active:scale-95 group"
+          whileHover={{ scale: 1.05, rotate: 15 }}
+          whileTap={{ scale: 0.95 }}
+          transition={{ type: 'spring', stiffness: 400, damping: 20 }}
+          className="p-2.5 rounded-xl text-gray-300 hover:bg-aurora-cyan/20 hover:text-aurora-cyan border border-transparent hover:border-aurora-cyan/30 transition-all duration-300 hover:shadow-neon-cyan group"
           aria-label="Alternar tema"
         >
-          {theme === 'light' ? (
-            <Moon className="w-5 h-5 group-hover:rotate-12 transition-transform" />
-          ) : (
-            <Sun className="w-5 h-5 group-hover:rotate-45 transition-transform" />
-          )}
-        </button>
+          <motion.div
+            animate={{ rotate: theme === 'light' ? 0 : 180 }}
+            transition={{ duration: 0.5, type: 'spring' }}
+          >
+            {theme === 'light' ? (
+              <Moon className="w-5 h-5" />
+            ) : (
+              <Sun className="w-5 h-5" />
+            )}
+          </motion.div>
+        </motion.button>
         
         {/* Botão de Sair */}
-        <button
+        <motion.button
           onClick={logout}
-          className="flex items-center gap-2 px-3 md:px-4 py-2 text-gray-300 hover:bg-red-500/20 hover:text-red-400 rounded-lg transition-all duration-200 active:scale-95 group border border-transparent hover:border-red-500/30"
+          whileHover={{ scale: 1.05, x: 3 }}
+          whileTap={{ scale: 0.95 }}
+          transition={{ type: 'spring', stiffness: 400, damping: 20 }}
+          className="flex items-center gap-2 px-4 py-2 text-gray-300 hover:bg-aurora-rose/20 hover:text-aurora-rose rounded-xl transition-all duration-300 group border border-transparent hover:border-aurora-rose/30 hover:shadow-neon-rose"
         >
-          <LogOut className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-          <span className="hidden sm:inline font-medium">Sair</span>
-        </button>
+          <LogOut className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+          <span className="hidden sm:inline font-semibold">Sair</span>
+        </motion.button>
       </div>
-    </header>
+    </motion.header>
   );
 };

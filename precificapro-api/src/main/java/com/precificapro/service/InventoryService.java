@@ -185,6 +185,56 @@ public class InventoryService {
                 .build();
     }
     
+    // ✅ MÉTODOS AUXILIARES PARA VALIDAÇÃO DE ESTOQUE (USADO EM VENDAS)
+    
+    @Transactional(readOnly = true)
+    public boolean hasAvailableStock(UUID productId, int quantity) {
+        return getAvailableStock(productId) >= quantity;
+    }
+    
+    @Transactional(readOnly = true)
+    public int getAvailableStock(UUID productId) {
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new ResourceNotFoundException("Produto", productId));
+        
+        return inventoryRepository.findByProduct(product)
+                .map(Inventory::getAvailableStock)
+                .orElse(0);
+    }
+    
+    // ✅ MÉTODO PÚBLICO PARA DAR BAIXA NO ESTOQUE (CHAMADO PELO SALESERVICE)
+    
+    @Transactional
+    public void adjustStock(UUID productId, int quantity, String type, String reason, String notes) {
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new ResourceNotFoundException("Produto", productId));
+        
+        Inventory inventory = inventoryRepository.findByProduct(product)
+                .orElseThrow(() -> new ResourceNotFoundException("Inventário não encontrado para produto: " + productId));
+        
+        int oldStock = inventory.getCurrentStock();
+        int adjustment = "IN".equals(type) ? quantity : -quantity;
+        int newStock = Math.max(0, oldStock + adjustment);
+        
+        inventory.setCurrentStock(newStock);
+        inventoryRepository.save(inventory);
+        
+        // Registrar movimentação
+        StockMovement movement = StockMovement.builder()
+                .inventory(inventory)
+                .product(product)
+                .type(type)
+                .quantity(quantity)
+                .reason(reason)
+                .notes(notes)
+                .performedBy(product.getOwner())
+                .build();
+        stockMovementRepository.save(movement);
+        
+        log.info("✅ Estoque ajustado automaticamente: {} → {} (produto: {})", 
+                 oldStock, newStock, product.getName());
+    }
+    
     @Transactional
     private Inventory createInventoryForProduct(Product product) {
         log.info("🆕 Criando inventário para produto: {}", product.getName());

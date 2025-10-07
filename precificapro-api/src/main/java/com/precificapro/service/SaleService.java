@@ -22,6 +22,7 @@ public class SaleService {
     @Autowired private ProductRepository productRepository;
     @Autowired private CostItemRepository costItemRepository;
     @Autowired private FreightBatchRepository freightBatchRepository;
+    @Autowired private InventoryService inventoryService;
     
     private static final MathContext MC = new MathContext(10, RoundingMode.HALF_UP);
     
@@ -53,12 +54,25 @@ public class SaleService {
         BigDecimal totalAmount = BigDecimal.ZERO;
         BigDecimal totalNetProfit = BigDecimal.ZERO;
 
-        // 2. Processa cada item da venda
+        // 2. VERIFICAR ESTOQUE ANTES DE PROCESSAR A VENDA
+        for (SaleCreateDTO.SaleItemCreateDTO itemDto : dto.items()) {
+            Product product = productRepository.findByIdAndOwner(itemDto.productId(), owner)
+                    .orElseThrow(() -> new RuntimeException("Produto não encontrado."));
+            
+            // ✅ VERIFICAR SE HÁ ESTOQUE DISPONÍVEL
+            if (!inventoryService.hasAvailableStock(itemDto.productId(), itemDto.quantity())) {
+                throw new RuntimeException("Estoque insuficiente para o produto: " + product.getName() + 
+                    ". Disponível: " + inventoryService.getAvailableStock(itemDto.productId()) + 
+                    ", Solicitado: " + itemDto.quantity());
+            }
+        }
+        
+        // 3. Processa cada item da venda
         for (SaleCreateDTO.SaleItemCreateDTO itemDto : dto.items()) {
             Product product = productRepository.findByIdAndOwner(itemDto.productId(), owner)
                     .orElseThrow(() -> new RuntimeException("Produto não encontrado."));
 
-            // 3. CALCULA O CUSTO DO PRODUTO NO MOMENTO DA VENDA (SNAPSHOT)
+            // 4. CALCULA O CUSTO DO PRODUTO NO MOMENTO DA VENDA (SNAPSHOT)
             // Esta lógica é uma simplificação do PricingSimulationService
             BigDecimal freightCostUnit = freightBatchRepository.findFirstByProductOrderByCreatedAtDesc(product)
                 .map(batch -> batch.getFreightTotal().divide(BigDecimal.valueOf(batch.getBatchSize()), MC))
@@ -91,6 +105,19 @@ public class SaleService {
         sale.setTotalAmount(totalAmount);
         sale.setTotalNetProfit(totalNetProfit);
 
-        return saleRepository.save(sale);
+        Sale savedSale = saleRepository.save(sale);
+        
+        // 5. ✅ DAR BAIXA NO ESTOQUE APÓS SALVAR A VENDA
+        for (SaleCreateDTO.SaleItemCreateDTO itemDto : dto.items()) {
+            inventoryService.adjustStock(
+                itemDto.productId(), 
+                itemDto.quantity(), 
+                "OUT", 
+                "Venda registrada - ID: " + savedSale.getId(),
+                "Baixa automática de estoque pela venda"
+            );
+        }
+        
+        return savedSale;
     }
 }

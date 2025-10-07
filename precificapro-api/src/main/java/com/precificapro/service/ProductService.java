@@ -3,12 +3,15 @@ package com.precificapro.service;
 import com.precificapro.controller.dto.ProductCreateDTO;
 import com.precificapro.controller.dto.ProductResponseDTO;
 import com.precificapro.controller.dto.ProductUpdateDTO;
+import com.precificapro.domain.model.Inventory;
 import com.precificapro.domain.model.Product;
 import com.precificapro.domain.model.ProductImage;
 import com.precificapro.domain.model.User;
+import com.precificapro.domain.repository.InventoryRepository;
 import com.precificapro.domain.repository.ProductImageRepository;
 import com.precificapro.domain.repository.ProductRepository;
 import com.precificapro.mapper.ProductMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,12 +19,15 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
+
 @Service
+@Slf4j
 public class ProductService {
 
     @Autowired private ProductRepository productRepository;
     @Autowired private ProductMapper productMapper;
     @Autowired private ProductImageRepository productImageRepository;
+    @Autowired private InventoryRepository inventoryRepository;
 
     @Transactional
     public ProductResponseDTO createProduct(ProductCreateDTO dto, User owner) {
@@ -31,6 +37,18 @@ public class ProductService {
         Product product = productMapper.toEntity(dto);
         product.setOwner(owner);
         Product savedProduct = productRepository.save(product);
+        
+        // ✅ CRIAR INVENTORY AUTOMATICAMENTE AO CRIAR PRODUTO
+        Inventory inventory = Inventory.builder()
+                .product(savedProduct)
+                .currentStock(0)
+                .minStock(5)
+                .reservedStock(0)
+                .availableStock(0)
+                .build();
+        inventoryRepository.save(inventory);
+        log.info("Inventory criado automaticamente para produto: {} (SKU: {})", savedProduct.getName(), savedProduct.getSku());
+        
         return toResponseDTOWithImage(savedProduct);
     }
 

@@ -1,5 +1,0 @@
-package com.precificapro.controller.dto;
-
-public class FreightBatchCreateDTO {
-
-}

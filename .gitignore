@@ -1,0 +1,38 @@
+# IDEs
+.DS_Store
+.vscode/
+.idea/
+*.iml
+
+# Eclipse metadata
+ambiente-springboot-api/.metadata/
+
+# Node modules
+node_modules/
+dist/
+build/
+
+# Logs
+*.log
+logs/
+
+# Dependencies
+*.jar
+target/
+
+# Environment variables
+.env
+.env.local
+
+# Database
+*.db
+*.sqlite
+
+# Temporary files
+*.tmp
+*.temp
+*.swp
+*.swo
+
+# OS Files
+Thumbs.db

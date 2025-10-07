@@ -1,5 +1,0 @@
-package com.precificapro.security;
-
-public class JwtAuthenticationFilter {
-
-}

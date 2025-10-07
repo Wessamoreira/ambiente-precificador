@@ -1,0 +1,10 @@
+package com.precificapro.config;
+
+import org.springframework.context.annotation.Configuration;
+import org.springframework.scheduling.annotation.EnableAsync;
+
+@Configuration
+@EnableAsync
+public class AsyncConfig {
+    // Configuração para permitir métodos assíncronos no AuditLogService
+}

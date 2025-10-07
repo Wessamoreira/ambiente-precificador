@@ -1,17 +1,18 @@
 package com.precificapro.domain.model;
 
+import com.precificapro.domain.enums.Role;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.OffsetDateTime;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "users")
@@ -28,6 +29,28 @@ public class User implements UserDetails {
     private String name;
     private String email;
     private String password;
+
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"))
+    @Enumerated(EnumType.STRING)
+    @Column(name = "role")
+    @Builder.Default
+    private Set<Role> roles = new HashSet<>();
+
+    @Column(name = "account_non_locked")
+    @Builder.Default
+    private Boolean accountNonLocked = true;
+
+    @Column(name = "enabled")
+    @Builder.Default
+    private Boolean enabled = true;
+
+    @Column(name = "failed_login_attempts")
+    @Builder.Default
+    private Integer failedLoginAttempts = 0;
+
+    @Column(name = "last_failed_login")
+    private OffsetDateTime lastFailedLogin;
 
     @Column(name = "created_at")
     private OffsetDateTime createdAt;
@@ -50,9 +73,9 @@ public class User implements UserDetails {
     // Métodos da interface UserDetails
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        // Para este projeto, não usaremos roles (ADMIN, USER), então retornamos uma lista vazia.
-        // Se precisássemos, aqui retornaríamos as permissões do usuário.
-        return Collections.emptyList();
+        return roles.stream()
+                .map(role -> new SimpleGrantedAuthority(role.getAuthority()))
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -68,7 +91,7 @@ public class User implements UserDetails {
 
     @Override
     public boolean isAccountNonLocked() {
-        return true; // A conta nunca é bloqueada
+        return accountNonLocked != null ? accountNonLocked : true;
     }
 
     @Override
@@ -78,6 +101,25 @@ public class User implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return true; // A conta está sempre habilitada
+        return enabled != null ? enabled : true;
+    }
+
+    // Métodos auxiliares para gerenciamento de login
+    public void incrementFailedLoginAttempts() {
+        this.failedLoginAttempts = (this.failedLoginAttempts == null ? 0 : this.failedLoginAttempts) + 1;
+        this.lastFailedLogin = OffsetDateTime.now();
+        if (this.failedLoginAttempts >= 5) {
+            this.accountNonLocked = false;
+        }
+    }
+
+    public void resetFailedLoginAttempts() {
+        this.failedLoginAttempts = 0;
+        this.lastFailedLogin = null;
+    }
+
+    public void unlockAccount() {
+        this.accountNonLocked = true;
+        this.failedLoginAttempts = 0;
     }
 }

@@ -40,6 +40,18 @@ public class JwtTokenProvider {
                 .compact();
     }
 
+    public String generateTokenFromUser(com.precificapro.domain.model.User user) {
+        Date now = new Date();
+        Date expiryDate = new Date(now.getTime() + jwtExpirationInMs);
+
+        return Jwts.builder()
+                .subject(user.getEmail())
+                .issuedAt(now)
+                .expiration(expiryDate)
+                .signWith(getSigningKey())
+                .compact();
+    }
+
     public String getUsernameFromJWT(String token) {
         Claims claims = Jwts.parser()
                 .verifyWith(getSigningKey())

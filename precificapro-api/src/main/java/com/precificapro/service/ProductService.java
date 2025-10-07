@@ -28,11 +28,12 @@ public class ProductService {
     @Autowired private ProductMapper productMapper;
     @Autowired private ProductImageRepository productImageRepository;
     @Autowired private InventoryRepository inventoryRepository;
+    @Autowired private AuditLogService auditLogService;
 
     @Transactional
     public ProductResponseDTO createProduct(ProductCreateDTO dto, User owner) {
         if (productRepository.existsBySkuAndOwner(dto.sku(), owner)) {
-            throw new RuntimeException("SKU já cadastrado para este usuário.");
+            throw new com.precificapro.exception.ResourceAlreadyExistsException("SKU já cadastrado para este usuário.");
         }
         Product product = productMapper.toEntity(dto);
         product.setOwner(owner);
@@ -49,13 +50,17 @@ public class ProductService {
         inventoryRepository.save(inventory);
         log.info("Inventory criado automaticamente para produto: {} (SKU: {})", savedProduct.getName(), savedProduct.getSku());
         
+        // Auditoria
+        auditLogService.logAction(owner, "PRODUCT_CREATED", "Product", savedProduct.getId().toString(),
+            "Produto criado: " + savedProduct.getName() + " (SKU: " + savedProduct.getSku() + ")");
+        
         return toResponseDTOWithImage(savedProduct);
     }
 
     @Transactional(readOnly = true)
     public ProductResponseDTO findProductById(UUID productId, User owner) {
         Product product = productRepository.findByIdAndOwner(productId, owner)
-                .orElseThrow(() -> new RuntimeException("Produto não encontrado."));
+                .orElseThrow(() -> new com.precificapro.exception.ResourceNotFoundException("Produto não encontrado."));
         return toResponseDTOWithImage(product);
     }
 
@@ -69,26 +74,38 @@ public class ProductService {
     @Transactional
     public ProductResponseDTO updateProduct(UUID productId, ProductUpdateDTO dto, User owner) {
         Product product = productRepository.findByIdAndOwner(productId, owner)
-                .orElseThrow(() -> new RuntimeException("Produto não encontrado."));
+                .orElseThrow(() -> new com.precificapro.exception.ResourceNotFoundException("Produto não encontrado."));
         
         // Verifica se o novo SKU já está em uso por OUTRO produto do mesmo usuário
         productRepository.findBySkuAndOwner(dto.sku(), owner).ifPresent(existingProduct -> {
             if (!existingProduct.getId().equals(productId)) {
-                throw new RuntimeException("SKU já está em uso por outro produto.");
+                throw new com.precificapro.exception.ResourceAlreadyExistsException("SKU já está em uso por outro produto.");
             }
         });
 
         productMapper.updateEntityFromDto(dto, product);
         Product updatedProduct = productRepository.save(product);
+        
+        // Auditoria
+        auditLogService.logAction(owner, "PRODUCT_UPDATED", "Product", updatedProduct.getId().toString(),
+            "Produto atualizado: " + updatedProduct.getName() + " (SKU: " + updatedProduct.getSku() + ")");
+        
         return toResponseDTOWithImage(updatedProduct);
     }
 
     @Transactional
     public void deleteProduct(UUID productId, User owner) {
-        if (!productRepository.existsByIdAndOwner(productId, owner)) {
-            throw new RuntimeException("Produto não encontrado.");
-        }
+        Product product = productRepository.findByIdAndOwner(productId, owner)
+                .orElseThrow(() -> new com.precificapro.exception.ResourceNotFoundException("Produto não encontrado."));
+        
+        String productName = product.getName();
+        String sku = product.getSku();
+        
         productRepository.deleteById(productId);
+        
+        // Auditoria
+        auditLogService.logAction(owner, "PRODUCT_DELETED", "Product", productId.toString(),
+            "Produto deletado: " + productName + " (SKU: " + sku + ")");
     }
     
     private ProductResponseDTO toResponseDTOWithImage(Product product) {

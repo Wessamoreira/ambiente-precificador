@@ -11,6 +11,8 @@ import { PricingProfilesPage } from '../pages/PricingProfilesPage';
 import { SimulationPage } from '../pages/SimulationPage';
 import { RecordSalePage } from '../pages/RecordSalePage';
 import { SalesHistoryPage } from '../pages/SalesHistoryPage'; // Importe a nova página
+import { CategoriesPage } from '../pages/CategoriesPage';
+import { InventoryPage } from '../pages/InventoryPage';
 
 export const AppRoutes = () => {
   return (
@@ -24,6 +26,8 @@ export const AppRoutes = () => {
             <Route path="/simulations" element={<SimulationPage />} />
             <Route path="/sales/record" element={<RecordSalePage />} />
             <Route path="/sales/history" element={<SalesHistoryPage />} /> {/* Adicione a nova rota */}
+            <Route path="/categories" element={<CategoriesPage />} />
+            <Route path="/inventory" element={<InventoryPage />} />
             <Route path="/products" element={<ProductsPage />} />
             <Route path="/customers" element={<CustomersPage />} />
             <Route path="/cost-items" element={<CostItemsPage />} />

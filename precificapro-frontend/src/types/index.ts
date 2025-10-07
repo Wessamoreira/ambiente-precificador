@@ -1,3 +1,22 @@
+// =================== CATEGORY ===================
+export interface Category {
+  id: string;
+  name: string;
+  description?: string;
+  icon?: string;
+  color?: string;
+  productCount: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CategoryCreateData {
+  name: string;
+  description?: string;
+  icon?: string;
+  color?: string;
+}
+
 // =================== PRODUCT ===================
 export interface Product {
     id: string;
@@ -99,4 +118,55 @@ export interface Product {
       totalNetProfit: number;
       productCount: number;
       customerCount: number;
+  }
+
+  // =================== INVENTORY & STOCK ===================
+  export enum StockStatus {
+    IN_STOCK = "IN_STOCK",
+    LOW_STOCK = "LOW_STOCK",
+    OUT_OF_STOCK = "OUT_OF_STOCK"
+  }
+
+  export interface Inventory {
+    id: string;
+    productId: string;
+    productName: string;
+    productSku: string;
+    currentStock: number;
+    minStock: number;
+    reservedStock: number;
+    availableStock: number;
+    stockStatus: StockStatus;
+    stockStatusDescription: string;
+    lastStockCheck: string;
+    updatedAt: string;
+  }
+
+  export interface StockAdjustData {
+    type: 'IN' | 'OUT';
+    quantity: number;
+    reason: string;
+    notes?: string;
+  }
+
+  export interface StockMovement {
+    id: string;
+    productId: string;
+    productName: string;
+    type: string;
+    typeDescription: string;
+    quantity: number;
+    reason: string;
+    notes?: string;
+    performedBy: string;
+    createdAt: string;
+  }
+
+  export interface InventorySummary {
+    totalProducts: number;
+    inStock: number;
+    lowStock: number;
+    outOfStock: number;
+    lowStockPercentage: number;
+    outOfStockPercentage: number;
   }

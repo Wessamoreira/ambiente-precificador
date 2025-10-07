@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, Calculator, ShoppingCart, History, Package, Users, DollarSign, Tag } from 'lucide-react';
+import { LayoutDashboard, Calculator, ShoppingCart, History, Package, Users, DollarSign, Tag, Folder, Warehouse } from 'lucide-react';
 
 interface SidebarProps {
   isOpen: boolean;
@@ -22,6 +22,8 @@ export const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
 
   const managementItems = [
     { to: '/sales/history', label: 'Histórico de Vendas', icon: History, color: 'text-gray-200' },
+    { to: '/categories', label: 'Categorias', icon: Folder, color: 'text-purple-300' },
+    { to: '/inventory', label: 'Estoque', icon: Warehouse, color: 'text-blue-300' },
     { to: '/products', label: 'Produtos', icon: Package, color: 'text-gray-200' },
     { to: '/customers', label: 'Clientes', icon: Users, color: 'text-gray-200' },
     { to: '/cost-items', label: 'Custos Fixos', icon: DollarSign, color: 'text-gray-200' },

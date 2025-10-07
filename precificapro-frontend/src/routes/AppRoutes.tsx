@@ -13,6 +13,7 @@ import { RecordSalePage } from '../pages/RecordSalePage';
 import { SalesHistoryPage } from '../pages/SalesHistoryPage'; // Importe a nova página
 import { CategoriesPage } from '../pages/CategoriesPage';
 import { InventoryPage } from '../pages/InventoryPage';
+import { ProductImagesPage } from '../pages/ProductImagesPage';
 
 export const AppRoutes = () => {
   return (
@@ -29,6 +30,7 @@ export const AppRoutes = () => {
             <Route path="/categories" element={<CategoriesPage />} />
             <Route path="/inventory" element={<InventoryPage />} />
             <Route path="/products" element={<ProductsPage />} />
+            <Route path="/products/:productId/images" element={<ProductImagesPage />} />
             <Route path="/customers" element={<CustomersPage />} />
             <Route path="/cost-items" element={<CostItemsPage />} />
             <Route path="/pricing-profiles" element={<PricingProfilesPage />} />

@@ -25,6 +25,7 @@ export interface Product {
     defaultPurchaseCost: number;
     defaultPackagingCost: number;
     defaultOtherVariableCost: number;
+    primaryImageUrl?: string;
   }
   export interface ProductData {
     name: string;
@@ -169,4 +170,21 @@ export interface Product {
     outOfStock: number;
     lowStockPercentage: number;
     outOfStockPercentage: number;
+  }
+
+  // =================== PRODUCT IMAGES ===================
+  export interface ProductImage {
+    id: string;
+    productId: string;
+    cloudinaryPublicId: string;
+    imageUrl: string;
+    thumbnailUrl: string;
+    secureUrl: string;
+    format: string;
+    width: number;
+    height: number;
+    sizeBytes: number;
+    isPrimary: boolean;
+    displayOrder: number;
+    uploadedAt: string;
   }

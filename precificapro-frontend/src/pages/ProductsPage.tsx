@@ -1,17 +1,19 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { getProducts, deleteProduct } from '../api/productService';
 import { GlassButton } from '../components/ui/GlassButton';
 import { GlassCard } from '../components/ui/GlassCard';
 import { Modal } from '../components/ui/Modal';
 import { ProductForm } from '../components/ProductForm';
 import { TableLoadingSkeleton } from '../components/ui/LoadingSkeleton';
-import { Edit2, Trash2, Plus, Search } from 'lucide-react';
+import { Edit2, Trash2, Plus, Search, Image } from 'lucide-react';
 import { motion } from 'framer-motion';
 import type { Product } from '../types';
 
 
 
 export const ProductsPage = () => {
+  const navigate = useNavigate();
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -118,6 +120,7 @@ export const ProductsPage = () => {
             <table className="min-w-full">
               <thead className="bg-white/5">
                 <tr>
+                  <th className="py-4 px-6 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Imagem</th>
                   <th className="py-4 px-6 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Nome</th>
                   <th className="py-4 px-6 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">SKU</th>
                   <th className="py-4 px-6 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Custo de Compra</th>
@@ -134,12 +137,28 @@ export const ProductsPage = () => {
                       transition={{ delay: index * 0.05 }}
                       className="hover:bg-white/5 transition-colors duration-200"
                     >
+                      <td className="py-4 px-6">
+                        <div className="w-12 h-12 rounded-lg overflow-hidden bg-gradient-to-br from-purple-500 to-cyan-500 flex items-center justify-center">
+                          {product.primaryImageUrl ? (
+                            <img src={product.primaryImageUrl} alt={product.name} className="w-full h-full object-cover" />
+                          ) : (
+                            <Image className="w-6 h-6 text-white" />
+                          )}
+                        </div>
+                      </td>
                       <td className="py-4 px-6 text-sm font-medium text-white">{product.name}</td>
                       <td className="py-4 px-6 text-sm text-gray-300">{product.sku}</td>
                       <td className="py-4 px-6 text-sm text-gray-300">
                         {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(product.defaultPurchaseCost)}
                       </td>
                       <td className="py-4 px-6 text-sm text-right space-x-2">
+                        <button 
+                          onClick={() => navigate(`/products/${product.id}/images`)}
+                          className="inline-flex items-center gap-1 px-3 py-1.5 text-purple-400 hover:text-purple-300 hover:bg-purple-500/10 rounded-lg transition-all"
+                        >
+                          <Image className="w-4 h-4" />
+                          Imagens
+                        </button>
                         <button 
                           onClick={() => handleOpenEditModal(product)} 
                           className="inline-flex items-center gap-1 px-3 py-1.5 text-blue-400 hover:text-blue-300 hover:bg-blue-500/10 rounded-lg transition-all"
@@ -159,7 +178,7 @@ export const ProductsPage = () => {
                   ))
                 ) : (
                   <tr>
-                    <td colSpan={4} className="text-center py-10 text-gray-400">Nenhum produto encontrado.</td>
+                    <td colSpan={5} className="text-center py-10 text-gray-400">Nenhum produto encontrado.</td>
                   </tr>
                 )}
               </tbody>
@@ -179,8 +198,15 @@ export const ProductsPage = () => {
               transition={{ delay: index * 0.05 }}
             >
               <GlassCard className="p-4">
-                <div className="flex justify-between items-start mb-3">
-                  <div>
+                <div className="flex gap-4 mb-3">
+                  <div className="w-16 h-16 rounded-lg overflow-hidden bg-gradient-to-br from-purple-500 to-cyan-500 flex items-center justify-center flex-shrink-0">
+                    {product.primaryImageUrl ? (
+                      <img src={product.primaryImageUrl} alt={product.name} className="w-full h-full object-cover" />
+                    ) : (
+                      <Image className="w-8 h-8 text-white" />
+                    )}
+                  </div>
+                  <div className="flex-1">
                     <h3 className="text-lg font-bold text-white">{product.name}</h3>
                     <p className="text-sm text-gray-400">SKU: {product.sku}</p>
                   </div>
@@ -192,6 +218,13 @@ export const ProductsPage = () => {
                   </p>
                 </div>
                 <div className="flex gap-2">
+                  <button 
+                    onClick={() => navigate(`/products/${product.id}/images`)}
+                    className="flex-1 flex items-center justify-center gap-2 px-3 py-2 text-purple-400 hover:bg-purple-500/10 rounded-lg transition-all border border-purple-500/30"
+                  >
+                    <Image className="w-4 h-4" />
+                    Imagens
+                  </button>
                   <button 
                     onClick={() => handleOpenEditModal(product)}
                     className="flex-1 flex items-center justify-center gap-2 px-3 py-2 text-blue-400 hover:bg-blue-500/10 rounded-lg transition-all border border-blue-500/30"

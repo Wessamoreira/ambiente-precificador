@@ -4,7 +4,6 @@ import com.precificapro.domain.model.RefreshToken;
 import com.precificapro.domain.model.User;
 import com.precificapro.domain.repository.RefreshTokenRepository;
 import com.precificapro.exception.BusinessException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,8 +14,11 @@ import java.util.UUID;
 @Service
 public class RefreshTokenService {
 
-    @Autowired
-    private RefreshTokenRepository refreshTokenRepository;
+    private final RefreshTokenRepository refreshTokenRepository;
+
+    public RefreshTokenService(RefreshTokenRepository refreshTokenRepository) {
+        this.refreshTokenRepository = refreshTokenRepository;
+    }
 
     @Value("${jwt.refresh-token.expiration.ms:86400000}")
     private Long refreshTokenDurationMs;
@@ -36,7 +38,7 @@ public class RefreshTokenService {
         return refreshTokenRepository.save(refreshToken);
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public RefreshToken verifyExpiration(RefreshToken token) {
         if (token.isExpired()) {
             refreshTokenRepository.delete(token);

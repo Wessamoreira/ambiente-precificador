@@ -6,7 +6,6 @@ import com.precificapro.domain.model.User;
 import com.precificapro.domain.repository.CustomerRepository;
 import com.precificapro.domain.repository.ProductRepository;
 import com.precificapro.domain.repository.SaleRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -15,9 +14,17 @@ import java.util.List;
 @Service
 public class DashboardService {
 
-    @Autowired private SaleRepository saleRepository;
-    @Autowired private ProductRepository productRepository;
-    @Autowired private CustomerRepository customerRepository;
+    private final SaleRepository saleRepository;
+    private final ProductRepository productRepository;
+    private final CustomerRepository customerRepository;
+
+    public DashboardService(SaleRepository saleRepository, 
+                          ProductRepository productRepository,
+                          CustomerRepository customerRepository) {
+        this.saleRepository = saleRepository;
+        this.productRepository = productRepository;
+        this.customerRepository = customerRepository;
+    }
 
     public DashboardMetricsDTO getMetrics(User owner) {
         List<Sale> sales = saleRepository.findAllByOwnerOrderBySaleDateDesc(owner);

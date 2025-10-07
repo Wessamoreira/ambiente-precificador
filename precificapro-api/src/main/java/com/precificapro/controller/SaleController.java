@@ -1,10 +1,11 @@
 package com.precificapro.controller;
 
 import com.precificapro.controller.dto.SaleCreateDTO;
-import com.precificapro.controller.dto.SaleResponseDTO; // Importe o DTO de resposta
+import com.precificapro.controller.dto.SaleResponseDTO;
 import com.precificapro.domain.model.User;
-import com.precificapro.mapper.SaleMapper; // Importe o Mapper
+import com.precificapro.mapper.SaleMapper;
 import com.precificapro.service.SaleService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,7 +23,7 @@ public class SaleController {
     @Autowired private SaleMapper saleMapper; // Injete o Mapper
 
     @PostMapping
-    public ResponseEntity<?> recordSale(@RequestBody SaleCreateDTO dto, @AuthenticationPrincipal User owner) {
+    public ResponseEntity<?> recordSale(@Valid @RequestBody SaleCreateDTO dto, @AuthenticationPrincipal User owner) {
         saleService.recordSale(dto, owner);
         return new ResponseEntity<>("Venda registrada com sucesso.", HttpStatus.CREATED);
     }

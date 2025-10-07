@@ -1,10 +1,30 @@
 package com.precificapro.config;
 
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+
+import java.util.concurrent.Executor;
 
 @Configuration
 @EnableAsync
 public class AsyncConfig {
-    // Configuração para permitir métodos assíncronos no AuditLogService
+    
+    /**
+     * Executor customizado para métodos assíncronos (ex: AuditLogService).
+     * Evita criar threads ilimitadas e permite controle de recursos.
+     */
+    @Bean(name = "taskExecutor")
+    public Executor taskExecutor() {
+        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+        executor.setCorePoolSize(2);
+        executor.setMaxPoolSize(5);
+        executor.setQueueCapacity(100);
+        executor.setThreadNamePrefix("async-audit-");
+        executor.setWaitForTasksToCompleteOnShutdown(true);
+        executor.setAwaitTerminationSeconds(20);
+        executor.initialize();
+        return executor;
+    }
 }

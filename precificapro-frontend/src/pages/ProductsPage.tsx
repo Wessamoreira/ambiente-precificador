@@ -6,7 +6,7 @@ import { GlassCard } from '../components/ui/GlassCard';
 import { Modal } from '../components/ui/Modal';
 import { ProductForm } from '../components/ProductForm';
 import { TableLoadingSkeleton } from '../components/ui/LoadingSkeleton';
-import { Edit2, Trash2, Plus, Search, Image } from 'lucide-react';
+import { Edit2, Trash2, Plus, Search, Image, TrendingUp } from 'lucide-react';
 import { motion } from 'framer-motion';
 import type { Product } from '../types';
 
@@ -160,6 +160,13 @@ export const ProductsPage = () => {
                           Imagens
                         </button>
                         <button 
+                          onClick={() => navigate(`/products/${product.id}/price-history`)}
+                          className="inline-flex items-center gap-1 px-3 py-1.5 text-yellow-400 hover:text-yellow-300 hover:bg-yellow-500/10 rounded-lg transition-all"
+                        >
+                          <TrendingUp className="w-4 h-4" />
+                          Histórico
+                        </button>
+                        <button 
                           onClick={() => handleOpenEditModal(product)} 
                           className="inline-flex items-center gap-1 px-3 py-1.5 text-blue-400 hover:text-blue-300 hover:bg-blue-500/10 rounded-lg transition-all"
                         >
@@ -217,13 +224,20 @@ export const ProductsPage = () => {
                     {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(product.defaultPurchaseCost)}
                   </p>
                 </div>
-                <div className="flex gap-2">
+                <div className="flex flex-wrap gap-2">
                   <button 
                     onClick={() => navigate(`/products/${product.id}/images`)}
                     className="flex-1 flex items-center justify-center gap-2 px-3 py-2 text-purple-400 hover:bg-purple-500/10 rounded-lg transition-all border border-purple-500/30"
                   >
                     <Image className="w-4 h-4" />
                     Imagens
+                  </button>
+                  <button 
+                    onClick={() => navigate(`/products/${product.id}/price-history`)}
+                    className="flex-1 flex items-center justify-center gap-2 px-3 py-2 text-yellow-400 hover:bg-yellow-500/10 rounded-lg transition-all border border-yellow-500/30"
+                  >
+                    <TrendingUp className="w-4 h-4" />
+                    Histórico
                   </button>
                   <button 
                     onClick={() => handleOpenEditModal(product)}

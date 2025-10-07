@@ -14,6 +14,7 @@ import { SalesHistoryPage } from '../pages/SalesHistoryPage'; // Importe a nova 
 import { CategoriesPage } from '../pages/CategoriesPage';
 import { InventoryPage } from '../pages/InventoryPage';
 import { ProductImagesPage } from '../pages/ProductImagesPage';
+import { PriceHistoryPage } from '../pages/PriceHistoryPage';
 
 export const AppRoutes = () => {
   return (
@@ -31,6 +32,7 @@ export const AppRoutes = () => {
             <Route path="/inventory" element={<InventoryPage />} />
             <Route path="/products" element={<ProductsPage />} />
             <Route path="/products/:productId/images" element={<ProductImagesPage />} />
+            <Route path="/products/:productId/price-history" element={<PriceHistoryPage />} />
             <Route path="/customers" element={<CustomersPage />} />
             <Route path="/cost-items" element={<CostItemsPage />} />
             <Route path="/pricing-profiles" element={<PricingProfilesPage />} />

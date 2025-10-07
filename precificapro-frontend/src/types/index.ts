@@ -188,3 +188,50 @@ export interface Product {
     displayOrder: number;
     uploadedAt: string;
   }
+
+  // =================== PRICE HISTORY ===================
+  export interface PriceHistory {
+    id: string;
+    productId: string;
+    suggestedPrice: number;
+    actualPrice?: number;
+    pricingProfileName?: string;
+    totalCost: number;
+    netProfitPerUnit: number;
+    netProfitPercentage: number;
+    markupApplied: number;
+    marginOnPrice: number;
+    createdAt: string;
+    createdBy?: string;
+    notes?: string;
+  }
+
+  export interface PriceEvolution {
+    productId: string;
+    productName: string;
+    periodDays: number;
+    dataPoints: Array<{
+      date: string;
+      suggestedPrice: number;
+      profitMargin: number;
+      pricingProfile?: string;
+    }>;
+    minPrice: number;
+    maxPrice: number;
+    avgPrice: number;
+    priceVariation: number;
+    trend: 'INCREASING' | 'DECREASING' | 'STABLE';
+    totalRecords: number;
+  }
+
+  export interface PriceStatistics {
+    productId: string;
+    productName: string;
+    minPrice: number;
+    maxPrice: number;
+    avgPrice: number;
+    currentPrice?: number;
+    currentMargin?: number;
+    totalRecords: number;
+    lastUpdated?: string;
+  }

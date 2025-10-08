@@ -34,14 +34,10 @@ export const GlassSelect = forwardRef<HTMLSelectElement, GlassSelectProps>(
         )}
         
         <div className="relative">
-          <motion.select
+          <select
             ref={ref}
             onFocus={() => setIsFocused(true)}
             onBlur={() => setIsFocused(false)}
-            animate={{
-              scale: isFocused ? 1.01 : 1,
-            }}
-            transition={{ type: 'spring', stiffness: 300, damping: 25 }}
             className={`
               w-full
               appearance-none
@@ -59,6 +55,7 @@ export const GlassSelect = forwardRef<HTMLSelectElement, GlassSelectProps>(
               ${neonColors[neonColor]}
               disabled:opacity-50 disabled:cursor-not-allowed
               ${error ? 'border-red-500/50 focus:border-red-500 focus:shadow-[0_0_20px_rgba(239,68,68,0.3)]' : ''}
+              ${isFocused ? 'scale-[1.01]' : 'scale-100'}
               ${className}
             `}
             {...props}
@@ -72,7 +69,7 @@ export const GlassSelect = forwardRef<HTMLSelectElement, GlassSelectProps>(
                 {option.label}
               </option>
             ))}
-          </motion.select>
+          </select>
 
           {/* Ícone de chevron */}
           <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">

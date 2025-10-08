@@ -1,6 +1,6 @@
 import { motion, useMotionValue, useTransform, PanInfo } from 'framer-motion';
 import { ReactNode, useState } from 'react';
-import { Trash2, Archive, Check } from 'lucide-react';
+import { Trash2, Check } from 'lucide-react';
 
 interface SwipeCardProps {
   children: ReactNode;

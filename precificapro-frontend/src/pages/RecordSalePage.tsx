@@ -64,22 +64,6 @@ export const RecordSalePage = () => {
     setCartItems(prev => prev.filter(item => item.productId !== productId));
   };
 
-  const handleSubmitSale = async () => {
-    const customer = customers.find(c => c.id === selectedCustomerId);
-    if (!customer || cartItems.length === 0) {
-      alert('Selecione um cliente e adicione pelo menos um item ao carrinho.');
-      return;
-    }
-    try {
-      await recordSale({ customerPhoneNumber: customer.phoneNumber, items: cartItems });
-      alert('Venda registrada com sucesso!');
-      setSelectedCustomerId('');
-      setCartItems([]);
-    } catch (err) {
-      alert('Erro ao registrar a venda.');
-    }
-  };
-
   const totalAmount = useMemo(() => {
     return cartItems.reduce((total, item) => total + (item.unitPrice * item.quantity), 0);
   }, [cartItems]);

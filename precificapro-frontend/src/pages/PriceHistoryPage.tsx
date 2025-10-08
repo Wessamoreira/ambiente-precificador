@@ -6,7 +6,7 @@ import { PriceHistory, PriceStatistics, Product } from '../types';
 import { GlassCard } from '../components/ui/GlassCard';
 import { GlassButton } from '../components/ui/GlassButton';
 import { TableLoadingSkeleton } from '../components/ui/LoadingSkeleton';
-import { ArrowLeft, TrendingUp, TrendingDown, Minus, DollarSign, Percent, Calendar } from 'lucide-react';
+import { ArrowLeft, TrendingUp, DollarSign, Percent, Calendar } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 export const PriceHistoryPage = () => {
@@ -47,27 +47,7 @@ export const PriceHistoryPage = () => {
     }
   };
 
-  const getTrendIcon = (trend?: string) => {
-    switch (trend) {
-      case 'INCREASING':
-        return <TrendingUp className="w-5 h-5 text-green-400" />;
-      case 'DECREASING':
-        return <TrendingDown className="w-5 h-5 text-red-400" />;
-      default:
-        return <Minus className="w-5 h-5 text-gray-400" />;
-    }
-  };
-
-  const getTrendColor = (trend?: string) => {
-    switch (trend) {
-      case 'INCREASING':
-        return 'text-green-400';
-      case 'DECREASING':
-        return 'text-red-400';
-      default:
-        return 'text-gray-400';
-    }
-  };
+  // Removed unused helper functions
 
   const formatCurrency = (value?: number) => {
     if (value === undefined || value === null) return '-';

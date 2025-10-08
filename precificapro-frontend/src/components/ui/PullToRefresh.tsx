@@ -24,7 +24,7 @@ export const PullToRefresh = ({
   const auroraOpacity = useTransform(y, [0, threshold], [0, 0.8]);
 
   useEffect(() => {
-    const handleTouchStart = (e: TouchEvent) => {
+    const handleTouchStart = () => {
       // Only allow pull to refresh if at top of page
       if (window.scrollY === 0) {
         setCanPull(true);

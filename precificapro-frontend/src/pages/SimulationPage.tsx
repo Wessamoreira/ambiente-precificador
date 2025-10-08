@@ -167,10 +167,10 @@ export const SimulationPage = () => {
                   <div className="flex justify-between"><span>Lucro Líquido / Unidade:</span> <span className="font-bold text-green-400">{formatCurrency(simulationResult.profitDetails.netProfitPerUnit)}</span></div>
                   <div className="flex justify-between"><span>Lucro Líquido (%):</span> <span className="font-bold text-green-400">{simulationResult.profitDetails.netProfitPercentage.toFixed(2)}%</span></div>
                   
-                  {/* Margem de Lucro - Novo Campo */}
+                  {/* Margem de Lucro Líquido */}
                   <div className="flex justify-between border-t border-white/10 pt-3">
-                    <span className="font-bold text-cyan-400">Sua Margem de Lucro (%):</span> 
-                    <span className="font-bold text-cyan-400">{simulationResult.profitDetails.margemDeLucro.toFixed(2)}%</span>
+                    <span className="font-bold text-cyan-400">Margem de Lucro Líquido (%):</span> 
+                    <span className="font-bold text-cyan-400">{simulationResult.profitDetails.netProfitPercentage.toFixed(2)}%</span>
                   </div>
                   
                   <div className="flex justify-between text-gray-400 text-sm">

@@ -10,13 +10,13 @@
 SPRING_PROFILES_ACTIVE=prod
 
 # Database (Render fornece automaticamente via Internal Database URL)
-# Você precisa conectar o PostgreSQL ao Web Service no dashboard
-# Ou colar manualmente o Internal Database URL aqui:
-DATABASE_URL=postgresql://precificapro_user:PASSWORD@HOST:5432/precificapro_db
+# USE A INTERNAL DATABASE URL (mais rápida e segura)
+# Copie do Render Dashboard → PostgreSQL → Internal Database URL
+DATABASE_URL=postgresql://precificapro_user:KuArCeajTQ6bRQCLUgVoTg8ZHiBJxL9b@dpg-d3itdt8gjchc73ejh2m0-a/precificapro_db
 
-# JWT Configuration (GERAR NOVA CHAVE!)
+# JWT Configuration (GERADA!)
 # Comando: openssl rand -base64 64
-JWT_SECRET_KEY=GERAR_UMA_CHAVE_ALEATORIA_DE_64_CARACTERES_AQUI
+JWT_SECRET_KEY=SWysXca41z1q1bafYS3Scpx9m4ZKwtkjUlyU2PdFfJN3aZC2iPXHUZFIgZhOIBXSMrE2J7QoBfU2KGNLZkPEVg==
 JWT_EXPIRATION_MS=3600000
 JWT_REFRESH_EXPIRATION_MS=86400000
 

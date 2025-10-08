@@ -3,7 +3,7 @@
 # Copie e cole no Netlify Dashboard → Environment Variables
 # =====================================================
 
-# URL da API Backend (atualizar com URL do Render)
+# URL da API Backend (✓ ATUALIZADA COM URL DO RENDER)
 VITE_API_BASE_URL=https://precificapro-api.onrender.com
 
 # Ambiente

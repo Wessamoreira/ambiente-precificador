@@ -1,32 +1,23 @@
-import { useEffect, useState } from 'react';
 import { GlassCard } from '@/components/ui/GlassCard';
-import { getDashboardStats } from '@/api/dashboardService';
-import type { DashboardStats } from '@/types';
+import { useDashboard } from '@/hooks/useDashboard';
 import { DollarSign, TrendingUp, Package, Users, Sparkles, ArrowUpRight, Trophy, ShoppingBag, Crown } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { DashboardLoadingSkeleton } from '@/components/ui/LoadingSkeleton';
+import { SalesChart } from '@/components/SalesChart';
 
 export const DashboardPage = () => {
-  const [stats, setStats] = useState<DashboardStats | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const loadStats = async () => {
-      try {
-        const data = await getDashboardStats();
-        setStats(data);
-      } catch (error) {
-        console.error("Falha ao carregar estatísticas do dashboard", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    loadStats();
-  }, []);
+  // React Query gerencia estado, cache e loading automaticamente
+  const { data: stats, isLoading: loading, error } = useDashboard();
 
   const formatCurrency = (value: number) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
 
   if (loading) return <DashboardLoadingSkeleton />;
+  if (error) return (
+    <div className="text-center text-red-400 p-8">
+      <p className="text-xl font-semibold mb-2">Erro ao carregar dashboard</p>
+      <p className="text-sm">{error instanceof Error ? error.message : 'Tente novamente mais tarde'}</p>
+    </div>
+  );
 
   const metrics = stats?.metrics;
 
@@ -362,6 +353,15 @@ export const DashboardPage = () => {
             </div>
           </motion.div>
         </GlassCard>
+      </motion.div>
+
+      {/* Gráfico de Evolução de Vendas */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 1.0 }}
+      >
+        <SalesChart />
       </motion.div>
     </div>
   );

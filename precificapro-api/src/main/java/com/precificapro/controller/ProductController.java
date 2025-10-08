@@ -7,6 +7,10 @@ import com.precificapro.domain.model.User;
 import com.precificapro.service.ProductService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -43,6 +47,20 @@ public class ProductController {
             @AuthenticationPrincipal User owner
     ) {
         return ResponseEntity.ok(productService.findAllProductsByOwner(owner));
+    }
+    
+    // NOVO: Endpoint paginado (recomendado)
+    @GetMapping("/paginated")
+    public ResponseEntity<Page<ProductResponseDTO>> getAllProductsPaginated(
+            @AuthenticationPrincipal User owner,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size,
+            @RequestParam(defaultValue = "name") String sortBy,
+            @RequestParam(defaultValue = "ASC") String sortDirection
+    ) {
+        Sort.Direction direction = Sort.Direction.fromString(sortDirection);
+        Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
+        return ResponseEntity.ok(productService.findAllProductsByOwnerPaginated(owner, pageable));
     }
 
     @PutMapping("/{id}")

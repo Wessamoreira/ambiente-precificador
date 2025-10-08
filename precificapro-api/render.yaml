@@ -1,0 +1,83 @@
+# =====================================================
+# PRECIFICAPRO - Configuração do Render.com
+# =====================================================
+
+services:
+  # PostgreSQL Database
+  - type: pserv
+    name: precificapro-db
+    env: docker
+    plan: free
+    region: oregon
+    databaseName: precificapro_db
+    databaseUser: precificapro_user
+
+  # Backend API (Spring Boot)
+  - type: web
+    name: precificapro-api
+    env: docker
+    plan: free
+    region: oregon
+    dockerfilePath: ./Dockerfile
+    dockerContext: ./precificapro-api
+    healthCheckPath: /actuator/health
+    envVars:
+      # Spring Profile
+      - key: SPRING_PROFILES_ACTIVE
+        value: prod
+      
+      # Database (conecta automaticamente ao PostgreSQL do Render)
+      - key: DATABASE_URL
+        fromDatabase:
+          name: precificapro-db
+          property: connectionString
+      
+      # JWT Configuration
+      - key: JWT_SECRET_KEY
+        generateValue: true
+        
+      - key: JWT_EXPIRATION_MS
+        value: 3600000
+        
+      - key: JWT_REFRESH_EXPIRATION_MS
+        value: 86400000
+      
+      # External APIs - VOCÊ PRECISA CONFIGURAR ESTES VALORES NO RENDER DASHBOARD
+      - key: GEMINI_API_KEY
+        sync: false
+        
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false
+        
+      - key: CLOUDINARY_API_KEY
+        sync: false
+        
+      - key: CLOUDINARY_API_SECRET
+        sync: false
+      
+      # CORS - Adicionar URL do Netlify depois do deploy do frontend
+      - key: CORS_ALLOWED_ORIGINS
+        value: https://seu-app.netlify.app
+      
+      # Google Drive Backup (opcional)
+      - key: GOOGLE_DRIVE_CREDENTIALS_JSON
+        sync: false
+        
+      - key: GOOGLE_DRIVE_BACKUP_FOLDER_ID
+        sync: false
+        
+      - key: BACKUP_RETENTION_DAYS
+        value: 30
+        
+      - key: BACKUP_AUTOMATIC_ENABLED
+        value: false
+      
+      # Rate Limiting
+      - key: RATE_LIMIT_ENABLED
+        value: true
+        
+      - key: RATE_LIMIT_MAX_REQUESTS
+        value: 100
+        
+      - key: RATE_LIMIT_DURATION
+        value: 60

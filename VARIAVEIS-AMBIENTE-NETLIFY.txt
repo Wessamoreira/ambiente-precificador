@@ -1,0 +1,25 @@
+# =====================================================
+# VARIÁVEIS DE AMBIENTE - NETLIFY (FRONTEND)
+# Copie e cole no Netlify Dashboard → Environment Variables
+# =====================================================
+
+# URL da API Backend (atualizar com URL do Render)
+VITE_API_BASE_URL=https://precificapro-api.onrender.com
+
+# Ambiente
+VITE_ENV=production
+
+# =====================================================
+# INSTRUÇÕES
+# =====================================================
+
+# 1. Obter URL do Backend:
+#    Render Dashboard → precificapro-api → Copiar URL
+#    Exemplo: https://precificapro-api.onrender.com
+
+# 2. No Netlify Dashboard:
+#    Site settings → Environment variables → Add variable
+#    Cole NOME=VALOR para cada variável acima
+
+# 3. Após adicionar, fazer Redeploy:
+#    Deploys → Trigger deploy → Deploy site

@@ -32,14 +32,10 @@ export const GlassTextarea = forwardRef<HTMLTextAreaElement, GlassTextareaProps>
         )}
         
         <div className="relative">
-          <motion.textarea
+          <textarea
             ref={ref}
             onFocus={() => setIsFocused(true)}
             onBlur={() => setIsFocused(false)}
-            animate={{
-              scale: isFocused ? 1.01 : 1,
-            }}
-            transition={{ type: 'spring', stiffness: 300, damping: 25 }}
             className={`
               w-full
               px-4
@@ -57,8 +53,10 @@ export const GlassTextarea = forwardRef<HTMLTextAreaElement, GlassTextareaProps>
               ${neonColors[neonColor]}
               disabled:opacity-50 disabled:cursor-not-allowed
               ${error ? 'border-red-500/50 focus:border-red-500 focus:shadow-[0_0_20px_rgba(239,68,68,0.3)]' : ''}
+              ${isFocused ? 'scale-[1.01]' : ''}
               ${className}
             `}
+            style={{ transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)' }}
             {...props}
           />
 

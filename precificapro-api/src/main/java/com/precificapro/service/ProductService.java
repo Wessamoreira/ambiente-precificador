@@ -13,6 +13,10 @@ import com.precificapro.domain.repository.ProductRepository;
 import com.precificapro.mapper.ProductMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,6 +35,7 @@ public class ProductService {
     @Autowired private AuditLogService auditLogService;
 
     @Transactional
+    @CacheEvict(value = {"products", "dashboardMetrics"}, key = "#owner.id")
     public ProductResponseDTO createProduct(ProductCreateDTO dto, User owner) {
         if (productRepository.existsBySkuAndOwner(dto.sku(), owner)) {
             throw new com.precificapro.exception.ResourceAlreadyExistsException("SKU já cadastrado para este usuário.");
@@ -70,8 +75,17 @@ public class ProductService {
                 .map(this::toResponseDTOWithImage)
                 .collect(Collectors.toList());
     }
+    
+    // NOVO: Método paginado (recomendado para produção)
+    @Transactional(readOnly = true)
+    @Cacheable(value = "products", key = "#owner.id + '-' + #pageable.pageNumber + '-' + #pageable.pageSize")
+    public Page<ProductResponseDTO> findAllProductsByOwnerPaginated(User owner, Pageable pageable) {
+        return productRepository.findByOwner(owner, pageable)
+                .map(this::toResponseDTOWithImage);
+    }
 
     @Transactional
+    @CacheEvict(value = "products", key = "#owner.id")
     public ProductResponseDTO updateProduct(UUID productId, ProductUpdateDTO dto, User owner) {
         Product product = productRepository.findByIdAndOwner(productId, owner)
                 .orElseThrow(() -> new com.precificapro.exception.ResourceNotFoundException("Produto não encontrado."));
@@ -94,6 +108,7 @@ public class ProductService {
     }
 
     @Transactional
+    @CacheEvict(value = {"products", "dashboardMetrics"}, key = "#owner.id")
     public void deleteProduct(UUID productId, User owner) {
         Product product = productRepository.findByIdAndOwner(productId, owner)
                 .orElseThrow(() -> new com.precificapro.exception.ResourceNotFoundException("Produto não encontrado."));

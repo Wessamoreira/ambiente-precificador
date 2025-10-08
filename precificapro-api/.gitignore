@@ -25,6 +25,10 @@ logs/
 .env
 *.local.properties
 
+# Google Drive Tokens (credenciais sensíveis)
+tokens/
+*.json
+
 # VSCode
 .vscode/
 

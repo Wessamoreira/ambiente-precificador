@@ -21,7 +21,6 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.security.GeneralSecurityException;
 import java.util.Collections;
 import java.util.List;
 
@@ -40,18 +39,22 @@ public class GoogleDriveConfig {
     private static final String TOKENS_DIRECTORY_PATH = "tokens";
 
     @Bean
-    public Drive googleDriveService() throws IOException, GeneralSecurityException {
+    public Drive googleDriveService() {
         if (credentialsJson == null || credentialsJson.isEmpty()) {
-            log.warn("Google Drive credentials not configured. Backup service will be disabled.");
+            log.warn("⚠️ Google Drive credentials not configured. Backup service will be DISABLED.");
             return null;
         }
-
-        final NetHttpTransport httpTransport = GoogleNetHttpTransport.newTrustedTransport();
-        Credential credential = getCredentials(httpTransport);
         
-        return new Drive.Builder(httpTransport, JSON_FACTORY, credential)
-                .setApplicationName(applicationName)
-                .build();
+        try {
+            final NetHttpTransport httpTransport = GoogleNetHttpTransport.newTrustedTransport();
+            Credential credential = getCredentials(httpTransport);
+            return new Drive.Builder(httpTransport, JSON_FACTORY, credential)
+                    .setApplicationName(applicationName)
+                    .build();
+        } catch (Exception e) {
+            log.error("❌ Failed to initialize Google Drive service: {}. Backup will be DISABLED.", e.getMessage());
+            return null;
+        }
     }
 
     private Credential getCredentials(final NetHttpTransport httpTransport) throws IOException {

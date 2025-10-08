@@ -1,5 +1,6 @@
 import { useTheme } from '../../context/ThemeContext';
 import { useAuth } from '../../context/AuthContext';
+import { StockNotifications } from '../StockNotifications';
 import { Menu, Sun, Moon, LogOut } from 'lucide-react';
 import { motion } from 'framer-motion';
 
@@ -16,7 +17,7 @@ export const Header = ({ onMenuButtonClick }: HeaderProps) => {
       initial={{ y: -100 }}
       animate={{ y: 0 }}
       transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-      className="flex justify-between items-center px-4 md:px-6 h-16 md:h-20 backdrop-blur-3xl bg-white/5 border-b border-white/10 sticky top-0 z-50"
+      className="flex justify-between items-center px-4 md:px-6 h-16 md:h-20 backdrop-blur-2xl bg-white/10 border-b border-white/20 fixed top-0 left-0 right-0 z-50 shadow-xl"
     >
       {/* Brilho Aurora no topo */}
       <div className="absolute top-0 left-0 right-0 h-full bg-gradient-to-r from-aurora-violet/10 via-aurora-cyan/10 to-aurora-rose/10 pointer-events-none opacity-50" />
@@ -36,6 +37,9 @@ export const Header = ({ onMenuButtonClick }: HeaderProps) => {
       <div className="flex-1"></div>
 
       <div className="relative z-10 flex items-center gap-3">
+        {/* Notificações de Estoque */}
+        <StockNotifications />
+        
         {/* Botão de Tema */}
         <motion.button
           onClick={toggleTheme}

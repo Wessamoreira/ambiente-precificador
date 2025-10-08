@@ -56,6 +56,35 @@ public class PricingProfileService {
     }
 
     @Transactional
+    public PricingProfileResponseDTO updateProfile(UUID id, PricingProfileCreateDTO dto, User owner) {
+        // Busca o perfil existente e verifica ownership
+        PricingProfile existingProfile = profileRepository.findByIdAndOwner(id, owner)
+                .orElseThrow(() -> new RuntimeException("Perfil de precificação não encontrado."));
+
+        // Valida os campos de acordo com o método
+        if (dto.method() == PricingMethod.MARKUP && dto.markup() == null) {
+            throw new IllegalArgumentException("Markup não pode ser nulo quando o método é MARKUP.");
+        }
+        if (dto.method() == PricingMethod.MARGIN && dto.marginOnPrice() == null) {
+            throw new IllegalArgumentException("MarginOnPrice não pode ser nulo quando o método é MARGIN.");
+        }
+
+        // Atualiza os campos
+        existingProfile.setName(dto.name());
+        existingProfile.setMethod(dto.method());
+        existingProfile.setMarkup(dto.markup());
+        existingProfile.setMarginOnPrice(dto.marginOnPrice());
+        existingProfile.setMachineFeePct(dto.machineFeePct());
+        existingProfile.setMarketplaceFeePct(dto.marketplaceFeePct());
+        existingProfile.setOtherFeesPct(dto.otherFeesPct());
+        existingProfile.setMonthlySalesTarget(dto.monthlySalesTarget());
+        existingProfile.setRoundingRule(dto.roundingRule());
+
+        PricingProfile updatedProfile = profileRepository.save(existingProfile);
+        return profileMapper.toResponseDTO(updatedProfile);
+    }
+
+    @Transactional
     public void deleteProfile(UUID id, User owner) {
         // A busca por ID e Owner garante que o usuário só pode deletar o que é seu
         if (!profileRepository.existsByIdAndOwner(id, owner)) {

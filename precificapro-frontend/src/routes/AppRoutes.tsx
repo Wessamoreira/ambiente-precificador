@@ -16,6 +16,7 @@ import { InventoryPage } from '../pages/InventoryPage';
 import { ProductImagesPage } from '../pages/ProductImagesPage';
 import { PriceHistoryPage } from '../pages/PriceHistoryPage';
 import { CustomerAnalyticsPage } from '../pages/CustomerAnalyticsPage';
+import { ProductRankingPage } from '../pages/ProductRankingPage';
 
 export const AppRoutes = () => {
   return (
@@ -29,6 +30,7 @@ export const AppRoutes = () => {
             <Route path="/simulations" element={<SimulationPage />} />
             <Route path="/sales/record" element={<RecordSalePage />} />
             <Route path="/sales/history" element={<SalesHistoryPage />} />
+            <Route path="/sales/ranking" element={<ProductRankingPage />} />
             <Route path="/categories" element={<CategoriesPage />} />
             <Route path="/inventory" element={<InventoryPage />} />
             <Route path="/products" element={<ProductsPage />} />

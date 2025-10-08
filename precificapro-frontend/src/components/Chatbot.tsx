@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { GlassCard } from './ui/GlassCard';
 import { GlassButton } from './ui/GlassButton';
 import { askAi } from '@/api/aiService';
+import { X } from 'lucide-react';
 
 interface Message {
   sender: 'user' | 'ai';
@@ -14,6 +15,24 @@ export const Chatbot = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const chatRef = useRef<HTMLDivElement>(null);
+
+  // Fechar ao clicar fora
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (chatRef.current && !chatRef.current.contains(event.target as Node) && isOpen) {
+        setIsOpen(false);
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isOpen]);
 
   const handleSendMessage = async () => {
     if (!inputValue.trim()) return;
@@ -48,14 +67,21 @@ export const Chatbot = () => {
       <AnimatePresence>
         {isOpen && (
           <motion.div
+            ref={chatRef}
             initial={{ opacity: 0, y: 50 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 50 }}
-            className="fixed bottom-24 right-6 z-50"
+            className="fixed bottom-24 right-6 z-50 w-96 max-w-[calc(100vw-3rem)]"
           >
-            <GlassCard className="w-96 h-[32rem] flex flex-col">
-              <div className="p-4 border-b border-white/10">
-                <h3 className="text-lg font-bold text-white text-center">Assistente PrecificaPro</h3>
+            <GlassCard className="h-[32rem] flex flex-col">
+              <div className="p-4 border-b border-white/10 flex justify-between items-center">
+                <h3 className="text-lg font-bold text-white">Assistente PrecificaPro</h3>
+                <button 
+                  onClick={() => setIsOpen(false)}
+                  className="text-gray-400 hover:text-white transition-colors p-1 rounded-lg hover:bg-white/10"
+                >
+                  <X className="w-5 h-5" />
+                </button>
               </div>
               
               <div className="flex-1 p-4 space-y-4 overflow-y-auto">

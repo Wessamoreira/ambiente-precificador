@@ -32,4 +32,8 @@ public interface ProductRepository extends JpaRepository<Product, UUID> {
     
     // Método para o dashboard
     long countByOwner(User owner);
+    
+    // Buscar produtos por categoria
+    @Query("SELECT p FROM Product p WHERE p.owner = :owner AND p.category.id = :categoryId")
+    List<Product> findByOwnerAndCategoryId(@Param("owner") User owner, @Param("categoryId") UUID categoryId);
 }

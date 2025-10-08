@@ -97,8 +97,8 @@ export const SwipeCard = ({
         dragConstraints={{ left: 0, right: 0 }}
         dragElastic={0.7}
         onDragStart={() => setIsDragging(true)}
-        onDragEnd={handleDragEnd}
-        style={{ x }}
+        onDragEnd={handleDragEnd as any}
+        style={{ x } as any}
         className={`relative z-10 ${isDragging ? 'cursor-grabbing' : 'cursor-grab'}`}
       >
         {children}

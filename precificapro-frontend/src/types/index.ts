@@ -26,6 +26,17 @@ export interface Product {
     defaultPackagingCost: number;
     defaultOtherVariableCost: number;
     primaryImageUrl?: string;
+    // Campos adicionais do backend
+    categoryId?: string;
+    categoryName?: string;
+    description?: string;
+    barcode?: string;
+    unit?: string;
+    isActive?: boolean;
+    internalNotes?: string;
+    defaultSellingPrice?: number;
+    defaultMarkup?: number;
+    defaultProfitMargin?: number;
   }
   export interface ProductData {
     name: string;
@@ -280,4 +291,33 @@ export interface Product {
     currentMargin?: number;
     totalRecords: number;
     lastUpdated?: string;
+  }
+
+  // =================== PRODUCT RANKING ===================
+  export interface ProductRanking {
+    productId: string;
+    productName: string;
+    productSku: string;
+    totalQuantitySold: number;
+    totalRevenue: number;
+    totalNetProfit: number;
+    avgProfitMargin: number;
+  }
+
+  export interface ProductSalesChart {
+    productId: string;
+    productName: string;
+    productSku: string;
+    dataPoints: SalesDataPoint[];
+    totalRevenue: number;
+    totalQuantitySold: number;
+    avgDailyRevenue: number;
+  }
+
+  export interface SalesDataPoint {
+    date: string;
+    quantitySold: number;
+    revenue: number;
+    profit: number;
+    salesCount: number;
   }

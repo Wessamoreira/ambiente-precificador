@@ -45,6 +45,21 @@ public class CostItemService {
     }
     
     @Transactional
+    public CostItemResponseDTO updateCostItem(UUID id, CostItemCreateDTO dto, User owner) {
+        CostItem costItem = costItemRepository.findByIdAndOwner(id, owner)
+                .orElseThrow(() -> new RuntimeException("Custo não encontrado."));
+        
+        // Atualiza os campos
+        costItem.setDescription(dto.description());
+        costItem.setType(dto.type());
+        costItem.setAmountMonthly(dto.amountMonthly());
+        costItem.setActive(dto.active());
+        
+        CostItem updatedCostItem = costItemRepository.save(costItem);
+        return costItemMapper.toResponseDTO(updatedCostItem);
+    }
+    
+    @Transactional
     public void deleteCostItem(UUID id, User owner) {
         CostItem costItem = costItemRepository.findByIdAndOwner(id, owner)
                 .orElseThrow(() -> new RuntimeException("Custo não encontrado."));

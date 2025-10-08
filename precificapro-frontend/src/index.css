@@ -21,12 +21,13 @@
     right: 0;
     bottom: 0;
     z-index: -1;
+    /* Fundo mais claro e intuitivo - mantém elegância mas melhora legibilidade */
     background: linear-gradient(135deg, 
-      #0a0e27 0%, 
-      #1e2a4a 25%, 
-      #141b3b 50%, 
-      #1e2a4a 75%, 
-      #0a0e27 100%
+      #1a1f3a 0%,   /* Azul escuro mais claro */
+      #2d3454 25%,  /* Azul médio */
+      #1f2847 50%,  /* Azul base */
+      #2d3454 75%,  /* Azul médio */
+      #1a1f3a 100%  /* Azul escuro mais claro */
     );
     background-size: 400% 400%;
     animation: aurora 20s ease-in-out infinite;

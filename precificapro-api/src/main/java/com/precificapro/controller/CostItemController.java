@@ -45,6 +45,16 @@ public class CostItemController {
         return ResponseEntity.ok(costItemService.findAllByOwner(owner));
     }
     
+    @PutMapping("/{id}")
+    public ResponseEntity<CostItemResponseDTO> updateCostItem(
+            @PathVariable UUID id,
+            @Valid @RequestBody CostItemCreateDTO dto,
+            @AuthenticationPrincipal User owner
+    ) {
+        CostItemResponseDTO updatedCostItem = costItemService.updateCostItem(id, dto, owner);
+        return ResponseEntity.ok(updatedCostItem);
+    }
+    
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteCostItem(
             @PathVariable UUID id,

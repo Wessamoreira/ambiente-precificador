@@ -80,4 +80,12 @@ public class ProductController {
         productService.deleteProduct(id, owner);
         return ResponseEntity.noContent().build();
     }
+    
+    @GetMapping("/by-category/{categoryId}")
+    public ResponseEntity<List<ProductResponseDTO>> getProductsByCategory(
+            @PathVariable UUID categoryId,
+            @AuthenticationPrincipal User owner
+    ) {
+        return ResponseEntity.ok(productService.findProductsByCategory(categoryId, owner));
+    }
 }

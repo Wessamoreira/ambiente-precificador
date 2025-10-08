@@ -1,5 +1,7 @@
 package com.precificapro.service;
 
+import com.precificapro.controller.dto.ProductRankingDTO;
+import com.precificapro.controller.dto.ProductSalesChartDTO;
 import com.precificapro.controller.dto.SaleCreateDTO;
 import com.precificapro.domain.model.*;
 import com.precificapro.domain.repository.*;
@@ -11,14 +13,18 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
+import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class SaleService {
 
     @Autowired private SaleRepository saleRepository;
+    @Autowired private SaleItemRepository saleItemRepository;
     @Autowired private CustomerRepository customerRepository;
     @Autowired private ProductRepository productRepository;
     @Autowired private CostItemRepository costItemRepository;
@@ -121,5 +127,64 @@ public class SaleService {
         }
         
         return savedSale;
+    }
+    
+    @Transactional(readOnly = true)
+    public List<ProductRankingDTO> getProductRanking(User owner) {
+        List<Object[]> results = saleItemRepository.findProductRankingByOwner(owner);
+        
+        return results.stream()
+            .map(row -> new ProductRankingDTO(
+                ((UUID) row[0]).toString(),
+                (String) row[1],
+                (String) row[2],
+                ((Number) row[3]).longValue(),
+                (BigDecimal) row[4],
+                (BigDecimal) row[5],
+                row[6] != null ? ((Number) row[6]).doubleValue() : 0.0
+            ))
+            .collect(Collectors.toList());
+    }
+    
+    @Transactional(readOnly = true)
+    public ProductSalesChartDTO getProductSalesChart(UUID productId, int days, User owner) {
+        // Verificar se produto existe e pertence ao usuário
+        Product product = productRepository.findByIdAndOwner(productId, owner)
+            .orElseThrow(() -> new RuntimeException("Produto não encontrado."));
+        
+        OffsetDateTime startDate = OffsetDateTime.now().minusDays(days);
+        List<Object[]> results = saleItemRepository.findProductSalesChart(owner, productId, startDate);
+        
+        List<ProductSalesChartDTO.DataPoint> dataPoints = results.stream()
+            .map(row -> new ProductSalesChartDTO.DataPoint(
+                (LocalDate) row[0],
+                ((Number) row[1]).longValue(),
+                (BigDecimal) row[2],
+                (BigDecimal) row[3],
+                ((Number) row[4]).intValue()
+            ))
+            .collect(Collectors.toList());
+        
+        BigDecimal totalRevenue = dataPoints.stream()
+            .map(ProductSalesChartDTO.DataPoint::revenue)
+            .reduce(BigDecimal.ZERO, BigDecimal::add);
+        
+        Long totalQuantity = dataPoints.stream()
+            .mapToLong(ProductSalesChartDTO.DataPoint::quantitySold)
+            .sum();
+        
+        BigDecimal avgDailyRevenue = dataPoints.isEmpty() 
+            ? BigDecimal.ZERO 
+            : totalRevenue.divide(BigDecimal.valueOf(days), MathContext.DECIMAL64);
+        
+        return new ProductSalesChartDTO(
+            productId.toString(),
+            product.getName(),
+            product.getSku(),
+            dataPoints,
+            totalRevenue,
+            totalQuantity,
+            avgDailyRevenue
+        );
     }
 }

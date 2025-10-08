@@ -123,6 +123,13 @@ public class ProductService {
             "Produto deletado: " + productName + " (SKU: " + sku + ")");
     }
     
+    @Transactional(readOnly = true)
+    public List<ProductResponseDTO> findProductsByCategory(UUID categoryId, User owner) {
+        return productRepository.findByOwnerAndCategoryId(owner, categoryId).stream()
+                .map(this::toResponseDTOWithImage)
+                .collect(Collectors.toList());
+    }
+    
     private ProductResponseDTO toResponseDTOWithImage(Product product) {
         String primaryImageUrl = productImageRepository.findByProductAndIsPrimaryTrue(product)
                 .map(ProductImage::getThumbnailUrl)

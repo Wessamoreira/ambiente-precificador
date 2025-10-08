@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, Calculator, ShoppingCart, History, Package, Users, DollarSign, Tag, Folder, Warehouse, Sparkles, TrendingUp } from 'lucide-react';
+import { LayoutDashboard, Calculator, ShoppingCart, History, Package, Users, DollarSign, Tag, Folder, Warehouse, Sparkles, TrendingUp, Trophy } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface SidebarProps {
@@ -10,6 +10,7 @@ interface SidebarProps {
 export const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
   const menuItems = [
     { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard, neonColor: 'violet' as const },
+    { to: '/sales/ranking', label: 'Ranking Produtos', icon: Trophy, neonColor: 'amber' as const },
     { to: '/customers/analytics', label: 'Análise Clientes', icon: TrendingUp, neonColor: 'amber' as const },
     { to: '/simulations', label: 'Simulação', icon: Calculator, neonColor: 'cyan' as const },
     { to: '/sales/record', label: 'Nova Venda', icon: ShoppingCart, neonColor: 'cyan' as const },

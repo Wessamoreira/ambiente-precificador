@@ -3,6 +3,8 @@ package com.precificapro.domain.repository;
 import com.precificapro.domain.model.Category;
 import com.precificapro.domain.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.Optional;
@@ -11,7 +13,8 @@ import java.util.UUID;
 @Repository
 public interface CategoryRepository extends JpaRepository<Category, UUID> {
     
-    List<Category> findByOwnerOrderByNameAsc(User owner);
+    @Query("SELECT DISTINCT c FROM Category c LEFT JOIN FETCH c.products WHERE c.owner = :owner ORDER BY c.name ASC")
+    List<Category> findByOwnerOrderByNameAsc(@Param("owner") User owner);
     
     Optional<Category> findByIdAndOwner(UUID id, User owner);
     

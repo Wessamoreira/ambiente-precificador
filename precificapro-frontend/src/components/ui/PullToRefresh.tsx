@@ -88,8 +88,8 @@ export const PullToRefresh = ({
         drag={canPull && !isRefreshing ? "y" : false}
         dragConstraints={{ top: 0, bottom: 0 }}
         dragElastic={0.3}
-        onDragEnd={handleDragEnd}
-        style={{ y }}
+        onDragEnd={handleDragEnd as any}
+        style={{ y } as any}
         className="touch-pan-y"
       >
         {children}

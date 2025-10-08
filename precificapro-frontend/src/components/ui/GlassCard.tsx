@@ -51,12 +51,16 @@ export const GlassCard = ({
     amber: 'shadow-neon-amber border-aurora-amber/50',
   };
 
+  const cardStyle = enable3D 
+    ? { rotateX, rotateY, transformStyle: 'preserve-3d' as any }
+    : undefined;
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, ease: [0.25, 0.46, 0.45, 0.94] }}
-      style={enable3D ? { rotateX, rotateY, transformStyle: 'preserve-3d' } : {}}
+      style={cardStyle}
       onMouseMove={handleMouseMove}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={handleMouseLeave}

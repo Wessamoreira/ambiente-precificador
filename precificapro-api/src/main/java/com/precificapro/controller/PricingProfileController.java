@@ -45,6 +45,16 @@ public class PricingProfileController {
         return ResponseEntity.ok(profileService.findAllByOwner(owner));
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<PricingProfileResponseDTO> updateProfile(
+            @PathVariable UUID id,
+            @Valid @RequestBody PricingProfileCreateDTO dto,
+            @AuthenticationPrincipal User owner
+    ) {
+        PricingProfileResponseDTO updatedProfile = profileService.updateProfile(id, dto, owner);
+        return ResponseEntity.ok(updatedProfile);
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteProfile(
             @PathVariable UUID id,

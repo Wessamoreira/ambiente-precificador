@@ -31,11 +31,18 @@ export const deleteProduct = async (id: string) => {
   await api.delete(`/products/${id}`);
 };
 
+// Buscar produtos por categoria
+export const getProductsByCategory = async (categoryId: string): Promise<Product[]> => {
+  const response = await api.get(`/products/by-category/${categoryId}`);
+  return response.data;
+};
+
 // Export como objeto também para compatibilidade
 export const productService = {
   getProducts,
   getById,
   createProduct,
   updateProduct,
-  deleteProduct
+  deleteProduct,
+  getProductsByCategory
 };

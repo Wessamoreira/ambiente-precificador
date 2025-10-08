@@ -17,12 +17,12 @@ export const MainLayout = () => {
       <div className="flex-1 flex flex-col overflow-hidden w-full">
         <Header onMenuButtonClick={() => setSidebarOpen(true)} />
         
-        {/* Main Content com scroll suave */}
+        {/* Main Content com scroll suave e padding-top para compensar header fixo */}
         <motion.main 
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.3 }}
-          className="flex-1 overflow-x-hidden overflow-y-auto"
+          className="flex-1 overflow-x-hidden overflow-y-auto pt-16 md:pt-20"
         >
           {/* Container responsivo mobile-first */}
           <div className="min-h-full p-4 sm:p-6 md:p-8 lg:p-10">

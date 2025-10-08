@@ -5,15 +5,19 @@ import { GlassCard } from '../components/ui/GlassCard';
 import { GlassButton } from '../components/ui/GlassButton';
 import { Modal } from '../components/ui/Modal';
 import { TableLoadingSkeleton } from '../components/ui/LoadingSkeleton';
-import { Plus, Edit2, Trash2, Package, Search, Folder } from 'lucide-react';
+import { useGlassAlert } from '../hooks/useGlassAlert';
+import { CategoryProductsModal } from '../components/CategoryProductsModal';
+import { Plus, Edit2, Trash2, Package, Search, Folder, Eye } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 export const CategoriesPage: React.FC = () => {
+  const { AlertComponent, showSuccess, showError, showConfirm } = useGlassAlert();
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState<{ id: string; name: string; color: string } | null>(null);
   const [formData, setFormData] = useState<CategoryCreateData>({
     name: '',
     description: '',
@@ -43,7 +47,7 @@ export const CategoriesPage: React.FC = () => {
       setCategories(data);
     } catch (error) {
       console.error('Erro ao carregar categorias:', error);
-      alert('Erro ao carregar categorias');
+      showError('Erro', 'Não foi possível carregar as categorias');
     } finally {
       setLoading(false);
     }
@@ -54,27 +58,34 @@ export const CategoriesPage: React.FC = () => {
     try {
       if (editingCategory) {
         await categoryService.update(editingCategory.id, formData);
+        showSuccess('Atualizado!', 'Categoria atualizada com sucesso');
       } else {
         await categoryService.create(formData);
+        showSuccess('Criado!', 'Categoria criada com sucesso');
       }
       await loadCategories();
       handleCloseModal();
     } catch (error) {
       console.error('Erro ao salvar categoria:', error);
-      alert('Erro ao salvar categoria');
+      showError('Erro', 'Não foi possível salvar a categoria');
     }
   };
 
   const handleDelete = async (id: string) => {
-    if (window.confirm('Deseja realmente deletar esta categoria? Os produtos vinculados ficarão sem categoria.')) {
-      try {
-        await categoryService.delete(id);
-        await loadCategories();
-      } catch (error) {
-        console.error('Erro ao deletar categoria:', error);
-        alert('Erro ao deletar categoria');
+    showConfirm(
+      'Excluir Categoria',
+      'Deseja realmente deletar esta categoria? Os produtos vinculados ficarão sem categoria.',
+      async () => {
+        try {
+          await categoryService.delete(id);
+          await loadCategories();
+          showSuccess('Deletado!', 'Categoria removida com sucesso');
+        } catch (error) {
+          console.error('Erro ao deletar categoria:', error);
+          showError('Erro', 'Não foi possível deletar a categoria');
+        }
       }
-    }
+    );
   };
 
   const handleEdit = (category: Category) => {
@@ -96,6 +107,14 @@ export const CategoriesPage: React.FC = () => {
       description: '',
       icon: 'Package',
       color: '#6366f1',
+    });
+  };
+
+  const handleCategoryClick = (category: Category) => {
+    setSelectedCategory({
+      id: category.id,
+      name: category.name,
+      color: category.color || '#6366f1'
     });
   };
 
@@ -162,7 +181,7 @@ export const CategoriesPage: React.FC = () => {
         <motion.div 
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
         >
           {filteredCategories.map((category, index) => (
             <motion.div
@@ -171,47 +190,84 @@ export const CategoriesPage: React.FC = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.05 }}
             >
-              <GlassCard className="hover:scale-105 transition-transform duration-200">
-                <div className="flex items-start justify-between mb-4">
+              <GlassCard className="h-full flex flex-col p-6">
+                {/* Header do Card */}
+                <div className="flex items-center gap-4 mb-4">
+                  {/* Ícone da Categoria */}
                   <div
-                    className="w-14 h-14 rounded-xl flex items-center justify-center shadow-lg"
-                    style={{ backgroundColor: category.color + '30', border: `2px solid ${category.color}` }}
+                    className="w-16 h-16 rounded-xl flex items-center justify-center shadow-lg flex-shrink-0"
+                    style={{ backgroundColor: category.color + '20', border: `2px solid ${category.color}` }}
                   >
-                    <Package className="w-7 h-7" style={{ color: category.color }} />
+                    <Package className="w-8 h-8" style={{ color: category.color }} />
                   </div>
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => handleEdit(category)}
-                      className="text-blue-400 hover:text-blue-300 p-2 rounded-lg hover:bg-white/10 transition-all"
-                      title="Editar"
-                    >
-                      <Edit2 className="w-4 h-4" />
-                    </button>
-                    <button
-                      onClick={() => handleDelete(category.id)}
-                      className="text-red-400 hover:text-red-300 p-2 rounded-lg hover:bg-white/10 transition-all"
-                      title="Deletar"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
+                  
+                  {/* Info da Categoria */}
+                  <div className="flex-1 min-w-0">
+                    <h3 className="text-lg font-bold text-white truncate mb-1" title={category.name}>
+                      {category.name}
+                    </h3>
+                    <div className="flex items-center gap-2">
+                      <div
+                        className="w-3 h-3 rounded-full flex-shrink-0"
+                        style={{ backgroundColor: category.color }}
+                      ></div>
+                      <span className="text-gray-400 text-xs truncate">
+                        {category.productCount} {category.productCount === 1 ? 'produto' : 'produtos'}
+                      </span>
+                    </div>
                   </div>
                 </div>
 
-                <h3 className="text-xl font-bold text-white mb-2">{category.name}</h3>
-                
+                {/* Descrição */}
                 {category.description && (
-                  <p className="text-gray-300 text-sm mb-3 line-clamp-2">{category.description}</p>
+                  <p className="text-gray-300 text-sm mb-4 line-clamp-2 flex-grow" title={category.description}>
+                    {category.description}
+                  </p>
                 )}
 
-                <div className="flex items-center justify-between pt-3 border-t border-white/10">
-                  <span className="text-gray-400 text-sm">
-                    {category.productCount} {category.productCount === 1 ? 'produto' : 'produtos'}
-                  </span>
-                  <div
-                    className="w-8 h-8 rounded-full"
-                    style={{ backgroundColor: category.color }}
-                    title={category.color}
-                  ></div>
+                {/* Botões de Ação */}
+                <div className="grid grid-cols-3 gap-2 mt-auto">
+                  {/* Ver Produtos */}
+                  <button
+                    onClick={() => handleCategoryClick(category)}
+                    className="col-span-3 flex items-center justify-center gap-2 px-4 py-2.5 bg-gradient-to-r from-violet-600 to-cyan-600 hover:from-violet-500 hover:to-cyan-500 text-white rounded-lg transition-all font-medium text-sm shadow-lg"
+                  >
+                    <Eye className="w-4 h-4" />
+                    Ver Produtos
+                  </button>
+                  
+                  {/* Editar */}
+                  <button
+                    onClick={() => handleEdit(category)}
+                    className="flex items-center justify-center gap-1 px-3 py-2 bg-blue-500/20 hover:bg-blue-500/30 text-blue-400 hover:text-blue-300 rounded-lg transition-all text-sm border border-blue-500/30"
+                    title="Editar categoria"
+                  >
+                    <Edit2 className="w-4 h-4" />
+                    Editar
+                  </button>
+                  
+                  {/* Adicionar Produto */}
+                  <button
+                    onClick={() => {
+                      // Navegar para página de produtos com filtro de categoria
+                      window.location.href = `/products?category=${category.id}`;
+                    }}
+                    className="flex items-center justify-center gap-1 px-3 py-2 bg-green-500/20 hover:bg-green-500/30 text-green-400 hover:text-green-300 rounded-lg transition-all text-sm border border-green-500/30"
+                    title="Adicionar produto"
+                  >
+                    <Plus className="w-4 h-4" />
+                    Novo
+                  </button>
+                  
+                  {/* Deletar */}
+                  <button
+                    onClick={() => handleDelete(category.id)}
+                    className="flex items-center justify-center gap-1 px-3 py-2 bg-red-500/20 hover:bg-red-500/30 text-red-400 hover:text-red-300 rounded-lg transition-all text-sm border border-red-500/30"
+                    title="Deletar categoria"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                    Deletar
+                  </button>
                 </div>
               </GlassCard>
             </motion.div>
@@ -304,6 +360,20 @@ export const CategoriesPage: React.FC = () => {
           </div>
         </form>
       </Modal>
+
+      {/* Category Products Modal */}
+      {selectedCategory && (
+        <CategoryProductsModal
+          isOpen={!!selectedCategory}
+          onClose={() => setSelectedCategory(null)}
+          categoryId={selectedCategory.id}
+          categoryName={selectedCategory.name}
+          categoryColor={selectedCategory.color}
+        />
+      )}
+
+      {/* GlassAlert Component */}
+      <AlertComponent />
     </div>
   );
 };

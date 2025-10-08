@@ -1,12 +1,12 @@
 import { motion } from 'framer-motion';
-import type { ReactNode } from 'react';
-import type { HTMLMotionProps } from 'framer-motion';
+import type { ReactNode, ButtonHTMLAttributes } from 'react';
 
-interface GlassButtonProps extends HTMLMotionProps<"button"> {
+interface GlassButtonProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'style'> {
   children: ReactNode;
   variant?: 'primary' | 'secondary' | 'success' | 'danger' | 'ghost';
   size?: 'sm' | 'md' | 'lg';
   neonGlow?: boolean;
+  style?: React.CSSProperties;
 }
 
 export const GlassButton = ({ 
